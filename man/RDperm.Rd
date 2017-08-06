@@ -14,9 +14,9 @@ RDperm(W, z, data, n.perm = 499, q_type = 10, cutoff = 0,
 
 \item{data}{Data.frame.}
 
-\item{n.perm}{Numeric. Number of permutations needed for the stochastic approximation of the p-values. See remark 3.2 in Canay and Kamat (2016). The default is B=500.}
+\item{n.perm}{Numeric. Number of permutations needed for the stochastic approximation of the p-values. See remark 3.2 in Canay and Kamat (2017). The default is B=499.}
 
-\item{q_type}{Numeric. A fixed and small (relative to the sample size) natural number that will define the \eqn{q}{q} closest values of the order statistic of \eqn{Z}{Z} to the right and to the left of the cutoff. If 'rot', it calls for the Rule of Thumb described in Canay and Kamat (2016), section 3.1.}
+\item{q_type}{A fixed and small (relative to the sample size) natural number that will define the \eqn{q}{q} closest values of the order statistic of \eqn{Z}{Z} to the right and to the left of the cutoff. If 'rot', it calls for the Rule of Thumb described in Canay and Kamat (2017), section 3.1.}
 
 \item{cutoff}{Numeric. The scalar defining the threshold of the running variable.}
 
@@ -38,14 +38,18 @@ containing the following components:
  \item{S_perm}{List. Permutations of the induced order statistic.}
 }
 \description{
-A permutation test for continuity of covariates in Sharp Regression Discontinuity Design as described in Canay and Kamat (2016).
+A permutation test for continuity of covariates in Sharp Regression Discontinuity Design as described in Canay and Kamat (2017).
 }
 \examples{
+permtest<-RDperm(W=c("demshareprev"),z="difdemshare",data=lee2008)
+summary(permtest)
+\dontrun{
 permtest<-RDperm(W=c("demshareprev","demwinprev"),z="difdemshare",data=lee2008)
 summary(permtest)
 }
+}
 \references{
-Canay, I and Kamat V. (2016) ``Approximate Permutation Tests and Induced Order Statistics in the Regression Discontinuity Design''
+Canay, I and Kamat V. (2017) ``Approximate Permutation Tests and Induced Order Statistics in the Regression Discontinuity Design''
 }
 \author{
 Maurcio Olivares Gonzalez

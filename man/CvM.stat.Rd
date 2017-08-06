@@ -4,19 +4,19 @@
 \alias{CvM.stat}
 \title{Cramer - von Mises statistics}
 \usage{
-CvM.stat(S)
+CvM.stat(Sn)
 }
 \arguments{
-\item{S}{Numeric. The pooled sample of induced order statistics. The first column of S can be viewed as an independent sample of W conditional on Z being close to zero from the left. Similarly, the second column of S can be viewed as an independent sample of W conditional on Z being close to the cutoff from the right. See section 3 in Canay and Kamat (2016).}
+\item{Sn}{Numeric. The pooled sample of induced order statistics. The first column of S can be viewed as an independent sample of W conditional on Z being close to zero from the left. Similarly, the second column of S can be viewed as an independent sample of W conditional on Z being close to the cutoff from the right. See section 3 in Canay and Kamat (2017).}
 }
 \value{
 Returns the numeric value of the Cramer - von Mises test statistic.
 }
 \description{
-Calculates the Cramer-von Mises test statistic \deqn{T(S_n)=\frac{1}{2q}\sum_{i=1}^{2q}\left(H^-_n(S_{n,i})-H^+_n(S_{n,i})\right)^2} where \eqn{H^-_n(\cdot)} and \eqn{H^+_n(\cdot)} are the empirical CDFs of the the sample of baseline covariates close to the cutoff from the left and right, respectively. See equation (12) in Canay and Kamat (2016).
+Calculates the Cramer-von Mises test statistic \deqn{T(S_n)=\frac{1}{2q}\sum_{i=1}^{2q}\left(H^-_n(S_{n,i})-H^+_n(S_{n,i})\right)^2} where \eqn{H^-_n(\cdot)} and \eqn{H^+_n(\cdot)} are the empirical CDFs of the the sample of baseline covariates close to the cutoff from the left and right, respectively. See equation (12) in Canay and Kamat (2017).
 }
 \references{
-Canay, I and Kamat V. (2016) ``Approximate Permutation Tests and Induced Order Statistics in the Regression Discontinuity Design''
+Canay, I and Kamat V. (2017) ``Approximate Permutation Tests and Induced Order Statistics in the Regression Discontinuity Design''
 }
 \author{
 Maurcio Olivares Gonzalez

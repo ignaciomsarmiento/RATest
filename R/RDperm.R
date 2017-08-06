@@ -6,7 +6,7 @@
 #' @param z Character. Running variable name. This is the scalar random variable that defines, along with the cutoff, the treatment assignment rule in the sharp regression discontinuity design.
 #' @param data Data.frame.
 #' @param n.perm Numeric. Number of permutations needed for the stochastic approximation of the p-values. See remark 3.2 in Canay and Kamat (2017). The default is B=499.
-#' @param q_type Numeric. A fixed and small (relative to the sample size) natural number that will define the \eqn{q}{q} closest values of the order statistic of \eqn{Z}{Z} to the right and to the left of the cutoff. If 'rot', it calls for the Rule of Thumb described in Canay and Kamat (2017), section 3.1.
+#' @param q_type A fixed and small (relative to the sample size) natural number that will define the \eqn{q}{q} closest values of the order statistic of \eqn{Z}{Z} to the right and to the left of the cutoff. If 'rot', it calls for the Rule of Thumb described in Canay and Kamat (2017), section 3.1.
 #' @param cutoff Numeric. The scalar defining the threshold of the running variable.
 #' @param test.statistic Character. A rank test statistic satisfying rank invariance. The default is a Cramer-von Mises test statistic.
 #' @return The functions \code{summary} and \code{plot} are used to obtain and print a summary and plot of
@@ -32,8 +32,12 @@
 #' @import quantreg
 #' @importFrom stats cor var runif
 #' @examples
+#' permtest<-RDperm(W=c("demshareprev"),z="difdemshare",data=lee2008)
+#' summary(permtest)
+#'\dontrun{
 #' permtest<-RDperm(W=c("demshareprev","demwinprev"),z="difdemshare",data=lee2008)
 #' summary(permtest)
+#' }
 #' @export
 
 
@@ -52,9 +56,10 @@ RDperm<-function(W,z,data,n.perm=499,q_type=10,cutoff=0,test.statistic="CvM"){
   # Induced order of W obs
   W_left <- W_left[order(W_left$z),]
   W_right <- W_right[order(W_right$z),]
-
-
-  results<-matrix(NA, nrow=length(W), ncol=3)
+  
+  if(q_type!="rot" & length(W)>1 ) {
+    results<-matrix(NA, nrow=length(W)+1, ncol=3)
+  } else results<-matrix(NA, nrow=length(W), ncol=3)
 
 
   # Selecting Q,
@@ -80,7 +85,8 @@ RDperm<-function(W,z,data,n.perm=499,q_type=10,cutoff=0,test.statistic="CvM"){
 
   }
 
-  if(q_type!="rot") results[,3]<-rep(q_type,length(W))
+  if(q_type!="rot" & length(W)>1 ) results[,3]<-rep(q_type,length(W)+1)
+  if(q_type!="rot" & length(W)==1 ) results[,3]<-rep(q_type,length(W))
   q<-min(results[,3])
 
   permtest<-RDperm.base(W,W_left, n_left, W_right, q=q,z, n.perm, test.statistic)
@@ -88,23 +94,23 @@ RDperm<-function(W,z,data,n.perm=499,q_type=10,cutoff=0,test.statistic="CvM"){
   if(q_type!="rot"){
   results[,1]<-permtest$test_statistic.obs
   results[,2]<-permtest$pvalues
+  
   }
 
-  if(length(W)>1){
-    K<-length(W)
-    j.test<-RDperm.joint(permtest$S,permtest$S_perm,K)
-    j.test$q<-q
-    j.test<-rbind(j.test)
-    results<-rbind(results,j.test)
-    results<-matrix(results, nrow=length(W)+1)
-    colnames(results)<-c("T(Sn)","Pr(>|z|)", "q")
-    W<-c(W,"Joint.Test")
-    results<-t(apply(results,1,function(x) do.call(rbind,x)))
+  if(q_type=="rot" & length(W)>1){
+    permtest<-RDperm.base(W,W_left, n_left, W_right, q=q,z, n.perm, test.statistic)
+    results_updated<-matrix(NA, nrow=length(W)+1, ncol=3)
+    results_updated[,1]<-c(results[,1],permtest$test_statistic.obs[length(W)+1])
+    results_updated[,2]<-c(results[,2],permtest$pvalues[length(W)+1])
+    results_updated[,3]<-c(results[,3],permtest$q[length(W)+1])
+    results<-results_updated
   }
 
   for(i in 1:3) results[,i]<- as.numeric(results[,i])
   colnames(results)<-c("T(Sn)","Pr(>|z|)", "q")
-  rownames(results)<-c(W)
+  if(length(W)>1){rownames(results)<-c(W,"Joint.Test")
+  }else rownames(results)<-W
+  
 
   object_perm<-list()
 
@@ -141,26 +147,27 @@ RDperm.base<-function(W,W_left, n_left, W_right, z, q, n.perm, test.statistic){
   Z_left<-base::subset(W_left[(n_left-q+1):n_left,], select=c(z))
   W_right_q<-base::subset(W_right[1:q,], select=c(W))
   Z_right <-base::subset(W_right[1:q,], select=c(z))
+  
+  Sn<-rbind(W_left_q,W_right_q)
 
-  W_left<-lapply(1:ncol(W_left_q),function(c) return(W_left_q[,c,drop=F]))
-  names(W_left) <-W
-
-  W_right<-lapply(1:ncol(W_right_q),function(c) return(W_right_q[,c,drop=F]))
-  names(W_right) <-W
-
-
-  S <- mapply(cbind, W_left, W_right, SIMPLIFY=FALSE)
-  S <- lapply(S,as.matrix)
-
+  
+  
   if(test.statistic=="CvM"){
     #Step 3. Compute the test statistic
-    test_statistic.obs<-do.call(rbind,lapply(S,CvM.stat))
-
-    S_perm <- do.call(cbind,lapply(S,as.vector))
-
+    test_statistic.obs<-apply(Sn,2,CvM.stat)
+    if(length(W)>1){
+    n.test_statistic.obs<-names(test_statistic.obs)
+    K<-length(W)
+    c<-C.unitsphere(K)
+    cS<-as.matrix(Sn)%*%c
+    TSn.joint<-max(apply(cS,2,calc_stat.CvM))
+    test_statistic.obs<-c(test_statistic.obs,TSn.joint)
+    names(test_statistic.obs)<-c(n.test_statistic.obs,"joint")
+    }
+    
     #Step 4. Generate random permutations
     sample.indexes = lapply(1:n.perm, function(x) sample(1:(2*q)))
-    S_perm_list<-lapply(sample.indexes,function(x,db) {db[x,]},S_perm)
+    S_perm_list<-lapply(sample.indexes,function(x,db) {db[x,]},Sn)
 
     calc_stat_res<-lapply(S_perm_list,calc_stat.CvM)
 
@@ -176,7 +183,8 @@ RDperm.base<-function(W,W_left, n_left, W_right, z, q, n.perm, test.statistic){
   object_perm$test_statistic.obs<-test_statistic.obs
   object_perm$pvalues<-ind.rule
   object_perm$q<- q #q
-  object_perm$S<- S_perm
+  #object_perm$S<- S_perm
+  object_perm$S<- Sn
   object_perm$S_perm<- S_perm_list
 
 
@@ -186,43 +194,26 @@ RDperm.base<-function(W,W_left, n_left, W_right, z, q, n.perm, test.statistic){
 }
 
 
+
+
+
 calc_stat.CvM<-function(x){
   if(is.vector(x)==T){
-    as_mat<- matrix(x,ncol=2)
-    stat<-CvM.stat(as_mat)
+    stat<-CvM.stat(x)
   }
   else {
-    split_col<-lapply(1:ncol(x),function(c) return(x[,c,drop=F]))
-    as_mat<-lapply(split_col,function(x) matrix(x,ncol=2))
-    stat<-lapply(as_mat,CvM.stat)
-    stat<-do.call(rbind,stat)
-  }
-
+    stat<-apply(x,2,CvM.stat)
+    n.stat<-names(stat)
+    K<-dim(x)[2]
+    c<-C.unitsphere(K)
+    cS<-as.matrix(x)%*%c
+    TSn.joint<-max(apply(cS,2,calc_stat.CvM))
+    stat<-c(stat,TSn.joint)
+    names(stat)<-c(n.stat,"joint")
+    }
   return(stat)
-
 }
 
-
-RDperm.joint<-function(S_perm,S_perm_list,K){
-  c<-C.unitsphere(K)
-  cS<-S_perm%*%c
-  TSn.obs<-max(apply(cS,2,calc_stat.CvM))
-
-  cS_perm_list<-lapply(S_perm_list,function(x) x%*%c)
-  TSn.perm<-lapply(cS_perm_list,calc_stat.CvM)
-  TSn.perm<-lapply(TSn.perm,max)
-
-  test_statistic<-"CvM"
-  ind.rule<-lapply(TSn.perm,function(x,CvM) {ifelse(x>=CvM,1,0)},TSn.obs)
-  ind.rule<-do.call(cbind,ind.rule)
-  ind.rule<-rowMeans(ind.rule)
-
-  object_perm<-list()
-  object_perm$test_statistic.obs<-TSn.obs
-  object_perm$pvalues<-ind.rule
-  class(object_perm)<-"RDperm"
-  return(object_perm)
-}
 
 
 qrot<-function(w,W_z){
