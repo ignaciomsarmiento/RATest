@@ -102,7 +102,7 @@ RDperm<-function(W,z,data,n.perm=499,q_type=10,cutoff=0,test.statistic="CvM"){
     results_updated<-matrix(NA, nrow=length(W)+1, ncol=3)
     results_updated[,1]<-c(results[,1],permtest$test_statistic.obs[length(W)+1])
     results_updated[,2]<-c(results[,2],permtest$pvalues[length(W)+1])
-    results_updated[,3]<-c(results[,3],permtest$q[length(W)+1])
+    results_updated[,3]<-c(results[,3],q)
     results<-results_updated
   }
 

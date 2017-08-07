@@ -19,8 +19,10 @@
 Plots a histogram and empirical cdf
 }
 \examples{
-permtest<-RDperm(W=c("demshareprev"),z="difdemshare",data=lee2008)
+\dontrun{
+permtest<-RDperm(W=c("demshareprev","demwinprev"),z="difdemshare",data=lee2008)
 plot(permtest,w="demshareprev")
+}
 }
 \references{
 Canay, I and Kamat V. (2016) ``Approximate Permutation Tests and Induced Order Statistics in the Regression Discontinuity Design''

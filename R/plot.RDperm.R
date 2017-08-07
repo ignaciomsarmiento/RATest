@@ -20,8 +20,10 @@
 #' @import ggplot2
 #' @import gridExtra
 #' @examples
-#' permtest<-RDperm(W=c("demshareprev"),z="difdemshare",data=lee2008)
+#'\dontrun{
+#' permtest<-RDperm(W=c("demshareprev","demwinprev"),z="difdemshare",data=lee2008)
 #' plot(permtest,w="demshareprev")
+#' }
 #' @export
 
 plot.RDperm <- function(x,w, plot.class="both",...){
