@@ -25,7 +25,7 @@
 #' @author Maurcio Olivares Gonzalez
 #' @author Ignacio Sarmiento Barbieri
 #' @references
-#' Canay, I and Kamat V. (2017) ``Approximate Permutation Tests and Induced Order Statistics in the Regression Discontinuity Design''
+#' Canay, I and Kamat V, (2017) Approximate Permutation Tests and Induced Order Statistics in the Regression Discontinuity Design. \url{http://faculty.wcas.northwestern.edu/~iac879/wp/RDDPermutations.pdf}
 #' @keywords permutation test rdperm
 #' @include H.cdf.R
 #' @include CvM.stat.R
@@ -56,7 +56,7 @@ RDperm<-function(W,z,data,n.perm=499,q_type=10,cutoff=0,test.statistic="CvM"){
   # Induced order of W obs
   W_left <- W_left[order(W_left$z),]
   W_right <- W_right[order(W_right$z),]
-  
+
   if(q_type!="rot" & length(W)>1 ) {
     results<-matrix(NA, nrow=length(W)+1, ncol=3)
   } else results<-matrix(NA, nrow=length(W), ncol=3)
@@ -94,7 +94,7 @@ RDperm<-function(W,z,data,n.perm=499,q_type=10,cutoff=0,test.statistic="CvM"){
   if(q_type!="rot"){
   results[,1]<-permtest$test_statistic.obs
   results[,2]<-permtest$pvalues
-  
+
   }
 
   if(q_type=="rot" & length(W)>1){
@@ -110,7 +110,7 @@ RDperm<-function(W,z,data,n.perm=499,q_type=10,cutoff=0,test.statistic="CvM"){
   colnames(results)<-c("T(Sn)","Pr(>|z|)", "q")
   if(length(W)>1){rownames(results)<-c(W,"Joint.Test")
   }else rownames(results)<-W
-  
+
 
   object_perm<-list()
 
@@ -147,11 +147,11 @@ RDperm.base<-function(W,W_left, n_left, W_right, z, q, n.perm, test.statistic){
   Z_left<-base::subset(W_left[(n_left-q+1):n_left,], select=c(z))
   W_right_q<-base::subset(W_right[1:q,], select=c(W))
   Z_right <-base::subset(W_right[1:q,], select=c(z))
-  
+
   Sn<-rbind(W_left_q,W_right_q)
 
-  
-  
+
+
   if(test.statistic=="CvM"){
     #Step 3. Compute the test statistic
     test_statistic.obs<-apply(Sn,2,CvM.stat)
@@ -164,7 +164,7 @@ RDperm.base<-function(W,W_left, n_left, W_right, z, q, n.perm, test.statistic){
     test_statistic.obs<-c(test_statistic.obs,TSn.joint)
     names(test_statistic.obs)<-c(n.test_statistic.obs,"joint")
     }
-    
+
     #Step 4. Generate random permutations
     sample.indexes = lapply(1:n.perm, function(x) sample(1:(2*q)))
     S_perm_list<-lapply(sample.indexes,function(x,db) {db[x,]},Sn)

@@ -21,3 +21,7 @@ Fixed by adding simpler examples and "\dontrun" to the more complex ones
 
 Retested it in x86_64-w64mingw32 (64-bit) with success,
 uploaded also to \url{https://win-builder.r-project.org/upload.aspx}, checks for arch 'i386' and arch 'x64' are ok
+
+#Resubmission2
+Added references to the description file
+Added url to the references

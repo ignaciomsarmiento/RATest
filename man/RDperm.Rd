@@ -49,7 +49,7 @@ summary(permtest)
 }
 }
 \references{
-Canay, I and Kamat V. (2017) ``Approximate Permutation Tests and Induced Order Statistics in the Regression Discontinuity Design''
+Canay, I and Kamat V, (2017) Approximate Permutation Tests and Induced Order Statistics in the Regression Discontinuity Design. \url{http://faculty.wcas.northwestern.edu/~iac879/wp/RDDPermutations.pdf}
 }
 \author{
 Maurcio Olivares Gonzalez

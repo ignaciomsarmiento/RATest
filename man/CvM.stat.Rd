@@ -16,7 +16,7 @@ Returns the numeric value of the Cramer - von Mises test statistic.
 Calculates the Cramer-von Mises test statistic \deqn{T(S_n)=\frac{1}{2q}\sum_{i=1}^{2q}\left(H^-_n(S_{n,i})-H^+_n(S_{n,i})\right)^2} where \eqn{H^-_n(\cdot)} and \eqn{H^+_n(\cdot)} are the empirical CDFs of the the sample of baseline covariates close to the cutoff from the left and right, respectively. See equation (12) in Canay and Kamat (2017).
 }
 \references{
-Canay, I and Kamat V. (2017) ``Approximate Permutation Tests and Induced Order Statistics in the Regression Discontinuity Design''
+Canay, I and Kamat V, (2017) Approximate Permutation Tests and Induced Order Statistics in the Regression Discontinuity Design. \url{http://faculty.wcas.northwestern.edu/~iac879/wp/RDDPermutations.pdf}
 }
 \author{
 Maurcio Olivares Gonzalez

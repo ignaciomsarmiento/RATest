@@ -6,7 +6,7 @@
 #' @author Maurcio Olivares Gonzalez
 #' @author Ignacio Sarmiento Barbieri
 #' @references
-#' Canay, I and Kamat V. (2017) ``Approximate Permutation Tests and Induced Order Statistics in the Regression Discontinuity Design''
+#' Canay, I and Kamat V, (2017) Approximate Permutation Tests and Induced Order Statistics in the Regression Discontinuity Design. \url{http://faculty.wcas.northwestern.edu/~iac879/wp/RDDPermutations.pdf}
 #' @keywords permutation test rdperm
 #' @export
 
@@ -14,13 +14,13 @@
 
 CvM.stat <- function(Sn){
   q <- length(Sn)/2
-  
+
   Ind_left<-outer(Sn[1:q],Sn,"<=")
   H_left<-apply(Ind_left,2,sum)/q
-  
+
   Ind_right<-outer(Sn[(q+1):(2*q)],Sn,"<=")
   H_right<-apply(Ind_right,2,sum)/q
-  
+
   return(sum((H_left-H_right)^2)/(2*q))
 }
 
