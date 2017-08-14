@@ -7,7 +7,7 @@
 There were no ERRORs or WARNINGs.
 
 #Resubmission
-CRAN Comments 
+CRAN Comments
 ** running examples for arch 'i386' ... [17s] NOTE
 Examples with CPU or elapsed time > 10s
         user system elapsed
@@ -25,3 +25,7 @@ uploaded also to \url{https://win-builder.r-project.org/upload.aspx}, checks for
 #Resubmission2
 Added references to the description file
 Added url to the references
+
+#Resubmission3
+References were wrong they wanted the link next to the paper.
+
