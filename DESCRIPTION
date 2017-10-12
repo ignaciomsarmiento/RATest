@@ -2,7 +2,7 @@ Package: RATest
 Type: Package
 Title: Randomization Tests
 Description: A collection of randomization tests, data sets and examples. The current version focuses on the description and implementation of a permutation test for testing the continuity assumption of the baseline covariates in the sharp regression discontinuity design (RDD) as in Canay and Kamat (2017) <https://goo.gl/UZFqt7>. More specifically, it allows the user to select a set of covariates and test the aforementioned hypothesis using a permutation test based on the Cramer-von Miss test statistic. Graphical inspection of the empirical CDF and histograms for the variables of interest is also supported in the package.
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: c(
     person( "Mauricio", "Olivares-Gonzalez", email=  "maurice.olivares@gmail.com", role =  c("aut", "cre")),
     person("Ignacio", "Sarmiento-Barbieri", email =  "ignaciomsarmiento@gmail.com", role = c("aut"))

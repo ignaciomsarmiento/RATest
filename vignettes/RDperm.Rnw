@@ -528,30 +528,33 @@ It is worth noticing that the approximation $\tilde{p}$ satisfies (\ref{eq: pval
 
 The implementation of the test statistic heavily relies on $q$, the number of closest values of the running variable to the left and right of the cutoff. This quantity is small relative to the sample size $n$, and remains fixed as $n\to\infty$. \cite{canay2016approximate} recomend the rule of thumb
 \begin{align}\label{eq: tuning_par}
-q=\left\lceil f(0)\sigma_Z\sqrt{1-\rho^2}\frac{n^{0.9}}{\log n} \right\rceil
+q=\left\lceil f(0)\sigma_Z\sqrt{10*(1-\rho^2)}\frac{n^{3/4}}{\log n} \right\rceil
 \end{align}
-where $\lceil\nu\rceil$ is the smallest integer greater or equal to $\nu$, $f(0)$ is the density if $Z$ at zero, $\rho$ is the coefficient of correlation $W$ and $Z$, and $\sigma^2_Z$ is the variance of $Z$. This quantity is only a rule of thumb and has to be seen under this light. Whether or not it's an optimal rule is something for further research. See \cite{canay2016approximate} section 3.1 for additional motivation.
+where $\lceil\nu\rceil$ is the smallest integer greater or equal to $\nu$, $f(0)$ is the density if $Z$ at zero, $\rho$ is the coefficient of correlation $W$ and $Z$, and $\sigma^2_Z$ is the variance of $Z$. Additionally, the authors have considered the following alternative rule of thumb
+\begin{align}\label{eq: alt_tuning_par}
+q^a=\left\lceil f(0)\sigma_Z\sqrt{1-\rho^2}\frac{n^{0.9}}{\log n} \right\rceil
+\end{align}
+finding similar results. The main difference in these rules is that the latter grows more rapidly. These quantities are only rules of thumb and have to be seen under this light. Whether or not it's an optimal rule is something for further research. See \cite{canay2016approximate} section 3.1 for additional motivation.
 
 
 \subsubsection{Scalar Case}\label{sec: scalar_q}
 
-Equation~(\ref{eq: tuning_par}) can be estimated from sample. The feasible tuning parameter is thus 
-
+Equations~(\ref{eq: tuning_par})-(\ref{eq: alt_tuning_par}) can be estimated from sample. Consider Equation~(\ref{eq: tuning_par}) first. The feasible tuning parameter is 
 \begin{align}\label{eq: qrot_hat}
 \hat{q}=\left\lceil 
-\max\left\{\min\left\{\hat{f}_n(0)\hat{\sigma}_{n,z}\sqrt{1-\hat{\rho}^2_n}\frac{n^{0.9}}{\log n},
+\max\left\{\min\left\{\hat{f}_n(0)\hat{\sigma}_{n,z}\sqrt{10*(1-\hat{\rho}^2_n)}\frac{n^{3/4}}{\log n},
 q_{UB}\right\},q_{LB}\right\}
 \right\rceil
 \end{align}
-where $q_{LB}=10$, and $q_{UB}=n^{0.9}/\log n$. The lower bound, $q_{LB}$ represents situations in which the randomized and non-randomized versions of the permutation test differ, whereas the upper bound, $q_{UB}$ guarantees the rate of convergence does not violate the formal results in \cite{canay2016approximate}, theorem 4.1. 
+where $q_{LB}=10$, and $q_{UB}=n^{0.9}/\log n$. The lower bound, $q_{LB}$ represents situations in which the randomized and non-randomized versions of the permutation test differ, whereas the upper bound, $q_{UB}$ guarantees the rate of convergence does not violate the formal results in \cite{canay2016approximate}, theorem 4.1. The same reasoning applies if we replace $q$ with $q^a$.
 \par
 The density function $\hat{f}_n(\cdot)$ was estimated employing the univariate adaptative kernel density estimation \textit{\`{a} la Silverman} \citep[e.g.][]{portnoy1989adaptive,koenker2002inference,silverman1986density}, and the results were obtained directly from the \textbf{R} package \textbf{quantreg} (\cite{koenker2016quantreg}). Finally, $\rho$ and $\sigma_Z$ were estimated by their sample counterparts.
 
 
 
-\subsubsection{Multidimensional Case}\label{sec: vector_q}
+\subsubsection{Vector Case}\label{sec: vector_q}
 
-The rule of thumb in (\ref{eq: tuning_par}) is not quite suitable when $W$ is a $K$-dimensional vector, since the variances and correlations are not scalars. Motivated by \cite{canay2016approximate}, we will consider two cases. First, we are interested in testing (\ref{eq: null_hyp}) individually, i.e. testing for continuity of the baseline covariates one by one. In this case, the following algorithm applies. We estimate $\hat{q}$ for each of the $K$ baseline covariates as in section~\ref{sec: scalar_q}. When testing (\ref{eq: null_hyp}) for the $j$-th covariate, we will use $\hat{q}_j$ to determine the $\hat{q}_j$ closest values of the order statistics of $\{Z_i\}$ to the right and to the left of the cutoff:
+The rules of thumb in (\ref{eq: tuning_par})-(\ref{eq: alt_tuning_par}) are not quite suitable when $W$ is a $K$-dimensional vector, since the variances and correlations are not scalars. Motivated by \cite{canay2016approximate}, we will consider two cases. First, we are interested in testing (\ref{eq: null_hyp}) individually, i.e. testing for continuity of the baseline covariates one by one. In this case, the following algorithm applies. We estimate $\hat{q}$ (or $\hat{q}^a$) for each of the $K$ baseline covariates as in section~\ref{sec: scalar_q}. When testing (\ref{eq: null_hyp}) for the $j$-th covariate, we will use $\hat{q}_j$ to determine the $\hat{q}_j$ closest values of the order statistics of $\{Z_i\}$ to the right and to the left of the cutoff:
 \[
 Z^{-}_{(\hat{q}_j)}\le \dots\le Z^{-}_{(1)}\:\:\text{ and }\:\:Z^{+}_{(1)}\le\dots\le Z^{+}_{(\hat{q}_j)}
 \]
@@ -703,7 +706,8 @@ permtest<-RDperm(W="demshareprev", z="difdemshare",data=lee2008,q_type=51)
 summary(permtest)
 @
 
-The \texttt{summary} function reports the vaule of the test statistics ($T(Sn)$), the \textit{p}-value and the number of q closest values used. This is particularly relevant when the user chooses the `rule of thumb' method for \texttt{q}. The function allows for multiple baseline covariates as well, in which case it will return the join test. The following \texttt{R} code shows how to do it:
+The \texttt{summary} function reports the vaule of the test statistics ($T(Sn)$), the \textit{p}-value and the number of q closest values used. This is particularly relevant when the user chooses any of the `rule of thumb' methods for \texttt{q}. The function allows for multiple baseline covariates as well, in which case it will return the join test. The following \texttt{R} code shows how to do this, using the rule of thumb in 
+Eq~(\ref{eq: tuning_par}):
 
 <<rot>>=
 permtest_rot<-RDperm(W=c("demshareprev","demwinprev", "demofficeexp"),

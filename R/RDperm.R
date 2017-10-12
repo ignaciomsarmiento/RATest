@@ -6,7 +6,7 @@
 #' @param z Character. Running variable name. This is the scalar random variable that defines, along with the cutoff, the treatment assignment rule in the sharp regression discontinuity design.
 #' @param data Data.frame.
 #' @param n.perm Numeric. Number of permutations needed for the stochastic approximation of the p-values. See remark 3.2 in Canay and Kamat (2017). The default is B=499.
-#' @param q_type A fixed and small (relative to the sample size) natural number that will define the \eqn{q}{q} closest values of the order statistic of \eqn{Z}{Z} to the right and to the left of the cutoff. If 'rot', it calls for the Rule of Thumb described in Canay and Kamat (2017), section 3.1.
+#' @param q_type A fixed and small (relative to the sample size) natural number that will define the \eqn{q}{q} closest values of the order statistic of \eqn{Z}{Z} to the right and to the left of the cutoff. The default, 'rot', value is given by the feasible rule of thumb in footnote 4 of Canay and Kamat (2017), section 3.1. If 'arot', it calls for the Rule of Thumb described in equation (15) of Canay and Kamat (2017), section 3.1. The default option grows at a slower rate than the optional rule of thumb, but adds a larger constant.
 #' @param cutoff Numeric. The scalar defining the threshold of the running variable.
 #' @param test.statistic Character. A rank test statistic satisfying rank invariance. The default is a Cramer-von Mises test statistic.
 #' @return The functions \code{summary} and \code{plot} are used to obtain and print a summary and plot of
@@ -14,7 +14,7 @@
 #' containing the following components:
 #'  \item{results}{Matrix. Test Statistic, P-values and Q}
 #'  \item{test.statistic}{Test Statistic}
-#'  \item{q_type}{Type of Q used in the calculations, can be either,  "Defined by User" or "Rule of Thumb"}
+#'  \item{q_type}{Type of Q used in the calculations, can be either,  "Defined by User", the "Rule of Thumb"  or the "Alternative Rule of Thumb".}
 #'  \item{n_perm}{number of permutations}
 #'  \item{rv}{Character. Running variable name}
 #'  \item{Z}{Vector. Running Variable}
@@ -57,15 +57,18 @@ RDperm<-function(W,z,data,n.perm=499,q_type=10,cutoff=0,test.statistic="CvM"){
   W_left <- W_left[order(W_left$z),]
   W_right <- W_right[order(W_right$z),]
 
-  if(q_type!="rot" & length(W)>1 ) {
+  
+  
+  if(!(q_type%in%c("rot","arot")) & length(W)>1 ) {
     results<-matrix(NA, nrow=length(W)+1, ncol=3)
   } else results<-matrix(NA, nrow=length(W), ncol=3)
 
 
   # Selecting Q,
-  if(q_type=="rot"){
+  if(q_type%in%c("rot","arot")){
     w<-as.list(W)
-    rot<-lapply(w,qrot,W_z)
+    if(q_type=="rot") rot<-lapply(w,qrot,W_z)
+    if(q_type=="arot") rot<-lapply(w,aqrot,W_z)
     w<-mapply(c, w, rot, SIMPLIFY=FALSE)
 
     test<-lapply(w,function(x) {
@@ -85,19 +88,18 @@ RDperm<-function(W,z,data,n.perm=499,q_type=10,cutoff=0,test.statistic="CvM"){
 
   }
 
-  if(q_type!="rot" & length(W)>1 ) results[,3]<-rep(q_type,length(W)+1)
-  if(q_type!="rot" & length(W)==1 ) results[,3]<-rep(q_type,length(W))
+  if(!(q_type%in%c("rot","arot")) & length(W)>1 )  results[,3]<-rep(q_type,length(W)+1)
+  if(!(q_type%in%c("rot","arot")) & length(W)==1 ) results[,3]<-rep(q_type,length(W))
   q<-min(results[,3])
 
   permtest<-RDperm.base(W,W_left, n_left, W_right, q=q,z, n.perm, test.statistic)
 
-  if(q_type!="rot"){
+  if(!(q_type%in%c("rot","arot")) ){
   results[,1]<-permtest$test_statistic.obs
   results[,2]<-permtest$pvalues
-
   }
 
-  if(q_type=="rot" & length(W)>1){
+  if((q_type%in%c("rot","arot")) & length(W)>1 ){
     permtest<-RDperm.base(W,W_left, n_left, W_right, q=q,z, n.perm, test.statistic)
     results_updated<-matrix(NA, nrow=length(W)+1, ncol=3)
     results_updated[,1]<-c(results[,1],permtest$test_statistic.obs[length(W)+1])
@@ -125,7 +127,11 @@ RDperm<-function(W,z,data,n.perm=499,q_type=10,cutoff=0,test.statistic="CvM"){
 
   if(q_type=="rot"){
     object_perm$q_type<-"Rule of Thumb"
-  } else{object_perm$q_type<- "Defined by User"}
+  } 
+  else if(q_type=="arot"){
+    object_perm$q_type<-"Alternative Rule of Thumb"
+  }
+    else{object_perm$q_type<- "Defined by User"}
 
   object_perm$n_perm<- n.perm #number of permutations
   object_perm$data<-data
@@ -216,7 +222,7 @@ calc_stat.CvM<-function(x){
 
 
 
-qrot<-function(w,W_z){
+aqrot<-function(w,W_z){
   w<-W_z[,w]
   z<-W_z[,"z"]
   N<-length(w)
@@ -234,6 +240,25 @@ qrot<-function(w,W_z){
   }
 }
 
+
+
+qrot<-function(w,W_z){
+  w<-W_z[,w]
+  z<-W_z[,"z"]
+  N<-length(w)
+  t <- seq(from=min(z),to=max(z),length.out = 2*N)
+  f <- quantreg::akj(z,t)$dens
+  t0 <- which(abs(t-0)==min(abs(t-0)))
+  f0 <- f[t0]
+  q<-ceiling(f0*var(z)*sqrt(10*(1-cor(z,w)^2))*(N^{0.75}/log(N)))
+  if(q<10){
+    q<-10
+  }else if(q>N^(0.9)/log(N)){
+    q<-ceiling(N^(0.9)/log(N))
+  } else {
+    q<-q
+  }
+}
 
 
 C.unitsphere <- function(K){
