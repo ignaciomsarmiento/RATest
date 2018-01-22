@@ -2,7 +2,7 @@
 % Please edit documentation in R/RDperm.R
 \name{RDperm}
 \alias{RDperm}
-\title{Regression Discontinuity Design Permutation test}
+\title{Regression Discontinuity Design Permutation Test}
 \usage{
 RDperm(W, z, data, n.perm = 499, q_type = 10, cutoff = 0,
   test.statistic = "CvM")

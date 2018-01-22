@@ -1,4 +1,4 @@
-#' @title Regression Discontinuity Design Permutation test
+#' @title Regression Discontinuity Design Permutation Test
 #'
 #' @description A permutation test for continuity of covariates in Sharp Regression Discontinuity Design as described in Canay and Kamat (2017).
 #'

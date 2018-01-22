@@ -16,13 +16,15 @@ LazyData: true
 RoxygenNote: 6.0.1
 Author: Mauricio Olivares-Gonzalez [aut, cre],
         Ignacio Sarmiento-Barbieri [aut]
-Collate:
+Collate: 
     'CvM.stat.R'
     'H.cdf.R'
     'RDperm.R'
+    'RPT.R'
     'lee2008.R'
     'plot.RDperm.R'
     'summary.RDperm.R'
+    'summary.RPT.R'
 Suggests: knitr,
     rmarkdown
 VignetteBuilder: knitr
