@@ -7,13 +7,13 @@
 RPT(formula, data, test = "means", n.perm = 499, na.action)
 }
 \arguments{
-\item{formula}{a formula object, with the response on the left of a ~ operator, and the groups on the right.}
+\item{formula}{a formula object, in which the response variable is on the left of a ~ operator, and the groups on the right.}
 
-\item{data}{a data.frame in which to interpret the variables named in the formula. If this is missing, then the variables in the formula should be on the search list.}
+\item{data}{a data.frame containing the named variables needed for the formula. If this argument is missing, then the variables in the formula should be on the search list.}
 
-\item{test}{test to be perfomed. Can be "means" will perform a Difference of Means, "medians" a Difference of Medians, and "variances" a Difference of Variances. For the test of difference of medians the Efron (1992) bootstrap estimator is used to estimate the variances (For further details, see Chung and Romano (2013))}
+\item{test}{testing problem. It admits  "means" if the objective is to test for difference of Means, "medians" for difference of Medians, and "variances" for difference of Variances. In the case the user is interested in testing for difference of medians, the Efron (1992) bootstrap estimator is used to estimate the variances (For further details, see Chung and Romano (2013))}
 
-\item{n.perm}{Numeric. Number of permutations needed for the stochastic approximation of the p-values. See remark 3.2 in Canay and Kamat (2017). The default is n.perm=499.}
+\item{n.perm}{Numeric. Number of permutations needed for the stochastic approximation of the p-values. The default is n.perm=499.}
 
 \item{na.action}{a function to filter missing data. This is applied to the model.frame . The default is na.omit, which deletes observations that contain one or more missing values.}
 }
@@ -24,23 +24,23 @@ An object of class "RPT" is a list containing at least the following components:
  \item{N}{Sample Size.}
  \item{T.obs}{Observed test statistic.}
  \item{pvalue}{P-value.}
- \item{T.perm}{Vector. Test statistics from the permutations.}
+ \item{T.perm}{Vector. Test statistics calculated from the permutations of the data.}
  \item{n_perm}{Number of permutations.}
  \item{parameters}{Estimated parameters.}
- \item{sample_sizes}{Groups lengths.}
+ \item{sample_sizes}{Sample size of groups.}
 }
 \description{
 This function considers the general problem of inference from the permutation distribution when comparing parameters from k populations. The test statistics will be based on the difference of estimators that are asymptotically linear. For illustrative purposes we will consider here the 2 sample case, but the function works for k-samples. 
 
 Difference of means: Here, the null hypothesis is of the form \eqn{H_0: \mu(P)-\mu(Q)=0}, and the corresponding test statistic is given by 
- \deqn{T_{m,n}=\frac{N^{1/2}(\bar{X}_m-\bar{Y}_n}{\sqrt{\frac{N}{m}\sigma^2_m(X_1,\dots,X_m)+ \frac{N}{n}\sigma^2_n(Y_1,\dots,Y_n)}}}  
+ \deqn{T_{m,n}=\frac{N^{1/2}(\bar{X}_m-\bar{Y}_n)}{\sqrt{\frac{N}{m}\sigma^2_m(X_1,\dots,X_m)+ \frac{N}{n}\sigma^2_n(Y_1,\dots,Y_n)}}}  
  where \eqn{\bar{X}_m} and \eqn{\bar{Y}_n} are the sample means from population \eqn{P} and population \eqn{Q}, respectively, and \eqn{\sigma^2_m(X_1,\dots,X_m)} is a consistent estimator of \eqn{\sigma^2(P)$ when $X_1,\dots,X_m} are i.i.d. from \eqn{P}. Assume consitency also under \eqn{Q}.
 
-Difference of medians: Let \eqn{F} and \eqn{G} be the CDFs corresponding to \eqn{P} and \eqn{Q}, and denote \eqn{\theta(F)} the median of \eqn{F} i.e. \eqn{\theta(F)=\inf\{x:F(x)\ge1/2\}}. Assume that \eqn{F} is continuously differentiable at \eqn{\theta(P)} with derivative \eqn{F'} (and the same with $F$ replaced by \eqn{G}). Here, the null hypothesis is of the form  \eqn{H_0: \theta(P)-\theta(Q)=0}, and the corresponding test statistic is given by
+Difference of medians: Let \eqn{F} and \eqn{G} be the CDFs corresponding to \eqn{P} and \eqn{Q}, and denote \eqn{\theta(F)} the median of \eqn{F} i.e. \eqn{\theta(F)=\inf\{x:F(x)\ge1/2\}}. Assume that \eqn{F} is continuously differentiable at \eqn{\theta(P)} with derivative \eqn{F'} (and the same with \eqn{F} replaced by \eqn{G}). Here, the null hypothesis is of the form  \eqn{H_0: \theta(P)-\theta(Q)=0}, and the corresponding test statistic is given by
 \deqn{T_{m,n}=\frac{N^{1/2}\left(\theta(\hat{P}_m)-\theta(\hat{Q})\right)}{\hat{\upsilon}_{m,n}}}
 where \eqn{\hat{\upsilon}_{m,n}} is a consistent estimator of \eqn{\upsilon(P,Q)}:
 \deqn{\upsilon(P,Q)=\frac{1}{\lambda}\frac{1}{4(F'(\theta))^2}+\frac{1}{1-\lambda}\frac{1}{4(G'(\theta))^2}}
-Choices of \eqn{\hat{\upsilon}_{m,n}} may include the kernel estimator of Devroye and Wagner (1980), the bootstrap estimator of Efron (1992), or the smoothed bootstrap  Hall et al. (1989) to list a few. For further details, see Chung and Romano (2013). This current implementation uses the bootstrap estimator of Efron (1992)
+Choices of \eqn{\hat{\upsilon}_{m,n}} may include the kernel estimator of Devroye and Wagner (1980), the bootstrap estimator of Efron (1992), or the smoothed bootstrap  Hall et al. (1989) to list a few. For further details, see Chung and Romano (2013). Current implementation uses the bootstrap estimator of Efron (1992)
                                                                                        
 Difference of variances: Here, the null hypothesis is of the form \eqn{H_0: \sigma^2(P)-\sigma^2(Q)=0}, and the corresponding test statistic is given by 
 \deqn{T_{m,n}=\frac{N^{1/2}(\hat{\sigma}_m^2(X_1,\dots,X_,)-\hat{\sigma}_n^2(Y_1,\dots,Y_n))}{\sqrt{\frac{N}{m}(\hat{\mu}_{4,x}-\frac{(m-3)}{(m-1)}(\hat{\sigma}_m^2)^2)+\frac{N}{n}(\hat{\mu}_{4,y}-\frac{(n-3)}{(n-1)}(\hat{\sigma}_y^2)^2)}}} 

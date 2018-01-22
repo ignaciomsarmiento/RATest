@@ -1,10 +1,5 @@
-#First Submission
-## Test environments
-* local OS X install, R 3.4.1
-* x86_64-redhat-linux-gnu (64-bit), R 3.4.0
+# Version 0.1.2
 
-## R CMD check results
-There were no ERRORs or WARNINGs.
 
 #Resubmission
 CRAN Comments
@@ -29,3 +24,10 @@ Added url to the references
 #Resubmission3
 References were wrong they wanted the link next to the paper.
 
+#First Submission
+## Test environments
+* local OS X install, R 3.4.1
+* x86_64-redhat-linux-gnu (64-bit), R 3.4.0
+
+## R CMD check results
+There were no ERRORs or WARNINGs.
