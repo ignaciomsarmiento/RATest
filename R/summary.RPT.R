@@ -1,9 +1,21 @@
-
+#' Summarizing Robust Permutation Tests
+#' 
+#' \code{summary} method for class \code{"RPT"}
+#' 
+#' @method summary RPT
+#' @param object an object of class \code{"RPT"}, usually a result of a call to \code{\link{RPT}}
+#' @param digits number of digits to display
+#' @param ... unused
+#' @return \code{summary.RPT} returns an object of \link{class} "\code{summary.RPT}" which has the following components:
+#'  \item{T.obs}{Observed test statistic.}
+#'  \item{pvalue}{P-value.}
+#' @author Maurcio Olivares Gonzalez
+#' @author Ignacio Sarmiento Barbieri
 #' @export
 
 
 
-summary.RPT<-function(object, ..., digits=max(3, getOption("digits") - 3)){
+summary.RPT<-function(object, digits=max(3, getOption("digits") - 3), ...){
 
   cat("\n")
   cat("***********************************************************\n")
@@ -40,7 +52,10 @@ summary.RPT<-function(object, ..., digits=max(3, getOption("digits") - 3)){
   cat("\n")
   cat(paste("P-Value: ", object$pvalue ,sep=""))
   cat("\n")
-
+  
+  results<-list(T.stat=object$T.obs,pvalue=object$pvalue)
+  class(results)<-"summary.RPT"
+  return(invisible(results))
 }
 
 

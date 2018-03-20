@@ -1,9 +1,22 @@
-
+#' Summarizing Regression Discontinuity Design Permutation Test
+#' 
+#' \code{summary} method for class \code{"RDPerm"}
+#' 
+#' @method summary RDperm
+#' @param object an object of class \code{"RDperm"}, usually a result of a call to \code{\link{RDperm}}
+#' @param digits number of digits to display
+#' @param ... unused
+#' @return \code{summary.RDperm} returns an object of \link{class} "\code{summary.RDperm}" which has the following components
+#'  \item{results}{Matrix with the Test Statistic, P-values and Q used}
+#' @author Maurcio Olivares Gonzalez
+#' @author Ignacio Sarmiento Barbieri
 #' @export
 
 
 
-summary.RDperm<-function(object, ..., digits=max(3, getOption("digits") - 3)){
+
+
+summary.RDperm<-function(object, digits=max(3, getOption("digits") - 3), ...){
 
   cat("\n")
   cat("**********************************************************\n")
