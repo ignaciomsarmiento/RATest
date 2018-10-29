@@ -1,0 +1,779 @@
+%\VignetteIndexEntry{rdperm: Permutation Test for Sharp RDD}
+%\VignetteEngine{knitr::knitr}
+
+\documentclass[12pt,reqno]{article}
+
+
+% ------------------ %
+%   Functionalities  %
+% ------------------ %
+
+\usepackage{standalone} % To source LaTeX code
+\usepackage{import} % To source LaTeX code
+
+% ------------ %
+%   Language   %
+% ------------ %
+
+\usepackage[english]{babel} % Languague for the sections
+\usepackage[latin1]{inputenc} % Accents
+\usepackage{lmodern}
+
+% ------------- %
+%  Mathematics  %
+% ------------- %
+
+\usepackage{amsmath}
+\usepackage{amsthm} % For the theorems
+\usepackage{amssymb}
+\usepackage{amsfonts} % For the real symbol
+\usepackage{mathrsfs} % For the sigma-algebra letter
+\usepackage{thmtools} % Theorem customization
+
+% ----------- %
+%  Graphics   %
+% ----------- %
+
+\usepackage{graphicx} % To inset graphs
+\usepackage{subcaption} % To set several graphs in one page
+\usepackage{placeins} % The graph is here and nowhere else
+\usepackage{tikz} % To draw pictures like sets and decision trees
+\usepackage{float} % To force graphs in a specific place
+
+% ---------- %
+%   Tables   %
+% ---------- %
+
+\usepackage{booktabs} % Enhances the quality of tables
+\usepackage{multirow} % Columns spanning multiple rows
+\usepackage{anysize} % Margins
+\usepackage[flushleft]{threeparttable} % Comments at the end of the table
+
+% ------- %
+%  Style  %
+% ------- %
+
+\usepackage{color} % To add a bit of color to your document
+\usepackage{titlesec} % Titles in sections
+\usepackage[authoryear,round]{natbib} %Citations
+\usepackage{bm} % bold italics in mathmode
+\usepackage{geometry} % Margins and page layout
+\usepackage{comment} % To comment sections
+\usepackage{hyperref} % For hyperlinks in the PDF
+\usepackage{epigraph} % Inspirational quote at the beginning of chapter
+\usepackage{etoolbox}
+\usepackage{footmisc} % Changing thanks symbol to dagger
+\usepackage{titling} % For changing the color of the thanks symbol
+\usepackage{enumerate} % To customize the appearance of the enumerator
+\usepackage{csquotes} % To insert quotes
+%\usepackage[blocks]{authblk} % To include more than one author
+
+
+% ------------- %
+% User specific %
+% ------------- %
+
+
+% ------------- %
+%   Settings    %
+% ------------- %
+
+
+% Margins %
+\geometry{verbose,tmargin=2cm,bmargin=2cm,lmargin=2cm,rmargin=2cm}
+
+% Itemization %
+\renewcommand{\labelitemi}{$\bullet$}
+
+% Hyperlinks %
+\definecolor{Red}{rgb}{0.5,0,0}
+\definecolor{Blue}{rgb}{0,0,0.5}
+\hypersetup{
+      colorlinks = true,
+      urlcolor = magenta,
+      linkcolor = magenta,
+      citecolor = blue,
+      pdfauthor = {Mauricio Olivares G.},
+      pdfkeywords = {econometrics, instrumental variables,
+      microeconometrics},
+      pdfpagemode = UseNone
+      }
+
+% Redefine the bold in math mode
+\newcommand{\bb}[1]{\mathbf{#1}} % Bold in mathmode, useful for matrices
+
+
+% ---------------------------------------%
+% Theorems, propositions and definitions %
+% -------------------------------------- %
+
+\newtheorem{theo}{Theorem}
+\newtheorem{lem}{Lemma}[subsection]
+\newtheorem{defi}{Definition}[subsection]
+\newtheorem{prop}{Proposition}[section]
+\newtheorem{claim}{Claim}
+\newtheorem{ex}[section]{Example}
+
+
+\declaretheoremstyle[
+  spaceabove = 8pt,
+  spacebelow = 8pt,
+  headfont=\color{black}\bfseries,
+  bodyfont=\normalfont,
+  qed=$\blacksquare$,
+  ]{remark_style}
+
+\declaretheorem[style=remark_style,within=section]{remark}
+\declaretheorem[style=remark_style,within=section]{assumption}
+
+
+\newtheorem{p}{Problem}
+\newenvironment{s}{%\small%
+        \begin{trivlist} \item \textbf{Solution}. }{%
+            \hspace*{\fill} $\Box$\end{trivlist}}%
+\newenvironment{pr}{%\small%
+        \begin{trivlist} \item \textcolor{magenta}{Proof of} }{%
+            \hspace*{\fill} $\Box$\end{trivlist}}%
+
+
+%------------ %
+%   Symbols   %
+%------------ %
+
+% Moments %
+\DeclareMathOperator*{\E}{\mathbb{E}}
+\DeclareMathOperator*{\En}{\mathbb{E}_{n}}
+
+\DeclareMathOperator*{\V}{\mathbb{V}}
+\DeclareMathOperator*{\Vn}{\mathbb{V}_{n}}
+
+\DeclareMathOperator*{\C}{\mathbb{C}}
+\DeclareMathOperator*{\Cn}{\mathbb{C}_{n}}
+
+% Argmin %
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+% Probability theory %
+\DeclareMathOperator*{\Prob}{\mathbb{P}}
+\DeclareMathOperator*{\plim}{\overset{P}{\rightarrow}}
+\DeclareMathOperator*{\dlim}{\overset{d}{\rightarrow}}
+\DeclareMathOperator*{\asynorm}{\overset{d}{\rightarrow}\mathcal{N}}
+
+
+
+%-------------- %
+% Title Section %
+%-------------- %
+
+% Thanks symbol to dagger %
+\DefineFNsymbols{mySymbols}{{\ensuremath\dagger}{\ensuremath\ddagger}\S\P
+   *{**}{\ensuremath{\dagger\dagger}}{\ensuremath{\ddagger\ddagger}}}
+\setfnsymbol{mySymbols}
+
+\thanksmarkseries{fnsymbol} %To change the color of the thanks mark
+
+
+\title{\Large \texttt{RATest}: An \texttt{R} package for Randomization Tests with an application to testing the continuity of the baseline covariates in RDD using Approximate Permutation Tests}
+
+
+\author{
+  \normalsize Mauricio Olivares-Gonz\'alez
+  \thanks{This research was supported by the Department of Economics, University of Illinois at Urbana-Champaign, Summer fellowship 2017. All of the computational experience reported here was conducted in the R language with the package {\tt RATest}\citep{RATest2017}. Code for all of the reported computation may be found in the vignette {\tt RDperm.Rnw} that appears as part of that package. All errors are our own.}\\
+  \normalsize Department of Economics\\
+  \normalsize UIUC\\
+  \normalsize \url{lvrsgnz2@illinois.edu}
+  \and
+  \normalsize Ignacio Sarmiento-Barbieri\\
+  \normalsize Department of Economics\\
+  \normalsize UIUC\\
+  \normalsize \url{srmntbr2@illinois.edu}
+}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\maketitle
+\date{}
+\begin{abstract}
+This paper introduces the \texttt{RATest} package in \texttt{R}, a collection of randomization tests. This package implements the approximate permutation test proposed by \cite{canay2016approximate} for testing the null hypothesis of continuity of the distribution of the baseline covariates at the cutoff in the Regression Discontinuity Design (RDD). We revisit the construction of permutation tests in general, and their properties under the approximate group invariance in particular. We illustrate these ideas and the proposed package in the context of the RDD of \cite{lee2008randomized}.
+
+\end{abstract}
+\noindent {\bf Keywords:} Regression Discontinuity Design, Permutation Test, Induced Order Statistics, \texttt{R}.
+
+
+
+% ----------------------------------------------------------------- %
+% ----------------------------------------------------------------- %
+
+<<preliminaries, echo=FALSE, warning = FALSE, message = FALSE, results='hide'>>=
+require("RATest")
+knitr::render_sweave()
+options(prompt = "R> ", continue = "+  ", digits = 2, show.signif.stars = FALSE)
+cleanup <- FALSE
+@
+
+
+%-------------- %
+% Introduction  %
+% ------------- %
+
+\section{Introduction} \label{sec: introduction}
+
+
+The fundamental hypothesis of continuity of the baseline covariates at the cutoff is intrinsically intestable. A stronger condition is proposed by \cite{lee2008randomized}, which leads to testable indentification hypotheses. Specifically, identification of the ATE requires that i) the distribution of the running variable is continuous at the cutoff, and ii) the continuity of the distribution of the baseline covariates at the cutoff.
+\par
+This paper implements the ideas and methods of \cite{canay2016approximate}, who propose a permutation test approach for the null hypothesis of continuity of the distribution of the baseline covariates at the cutoff. Permutation tests have several advantages in the testing problem we are concerned. They can be applied without parametric assumptions of the underlying distribution generating the data. They can control the limiting rejection probability under general assumptions. 
+\par
+The practical relevance of this continuity assumption is everywhere in the regression discontinuity empirical literature. In practice\footnote{This has been highlighted by 
+\cite{canay2016approximate}. See Appendix E for a survey of the topic in leading journals from 2011 to 2015.}, though, the assessment of the validity of the RDD frequently relies on graphical inspection, or checking the continuity of the \textit{conditional means} of the baseline covariates at the cutoff by means of formal test, neither of which in a test for the continuity of the baseline covariates at the cutoff.
+\par
+This paper is organized as follows. Section~\ref{sec: testable_hyp} introduces the environment and testable identification assumptions in the RDD case. In Section~\ref{sec: order_statistics} the induced order statistics environment and test statistics will be described. A brief introduction to permutation tests and their validity under certain group invariance assumptions is developed in Section~\ref{sec: perm_test}. Section~\ref{sec: aprx_inv} establishes the asymptotic validity of the permutation test in 
+\cite{canay2017randomization}. Sections~\ref{sec: implementation} presents technical details on the computation and the implementation of the proposed testing procedure in 
+\texttt{RATest}. Section~\ref{sec: empirical} concerns the empirical illustration and further examples. Finally, Section~\ref{sec: conclusions} concludes. Readers versed in the theoretical dimension of this problem can skip sections~\ref{sec: testable_hyp} to~\ref{sec: aprx_inv}.
+
+
+
+% ----------------------------------------------------------------- %
+% ----------------------------------------------------------------- %
+
+\section{Testable Hypothesis} \label{sec: testable_hyp}
+
+
+% ------------------------------ %
+% Subsection: %
+% ------------------------------ %
+
+
+\subsection{Potential Outcomes} \label{sec: hte_model}
+
+Consider the simplest model for a randomized experiment with subject $i$'s (continuous) response $Y_i$ to a binary treatment $A_i$. The treatment assignment in the sharp RDD follows the rule $A_i=\{Z_i\ge\bar{z}\}$, where $Z_i$ is the so called running variable, and $\bar{z}$ is the cutoff at which the discontinuity arises. This threshold is conveniently assumed to be equal to $0$.
+\par
+For every subject $i$, there are two mutually exclusive potential outcomes - either subject gets treated or not.  If subject $i$ receives the treatment ($A_i=1$), we will say the potential outcome is $Y_i(1)$. Similarly, if subject $i$ belongs to the control group ($A_i=0$), the potential outcome is $Y_i(0)$. We are interested in the average treatment effect (ATE) at the cutoff, i.e. 
+\[
+\E(Y_i(1)-Y_i(0)\vert Z=0)
+\]
+The identification assumption is not testable nonetheless as we only get to observe at most one of the potential outcomes\footnote{To put it in a more compact way, we say individual $i$'s observed outcome, $Y^{*}_i$ is$Y^{*}_i=Y_i(1)A_i+Y_i(0)(1-A_i)$, whereas the identification assumption in \cite{hahn2001identification} requires that both
+\[\E(Y_i(1)\vert Z=z)\:\:\:\text{ and }\:\:\:\E(Y_i(0)\vert Z=z)\:\text{ are continuous in }\:z\text{ at }\:0\]}. \cite{lee2008randomized} established a more restrictive but testable sufficient condition for identification - units can control the running variable except around the cutoff\footnote{See condition 2b in the aforementioned paper.}. The identifying assumption implies that the baseline covariates are continuously distributed at the cutoff
+\begin{align}\label{eq: null_1}
+H(w\vert z)\def\Prob(W\le w\vert Z=z)\:\:\:\text{ is continuous in }\:\:z=0\:\:\text{ for all }\:w\in
+\mathcal{W}
+\end{align}
+where $W\in\mathcal{W}$ denotes the baseline covariates. We can cast condition~(\ref{eq: null_1}) in terms of a two-sample hypothesis testing problem. Let
+\[
+H^{-}(w\vert0)=\lim_{z\uparrow 0}H(w\vert0)\:\:\:\text{ and }\:\:\:H^+(w\vert0)=\lim_{z\downarrow 0}
+H(w\vert0)
+\]
+Condition~(\ref{eq: null_1}) is equivalent to $H(w\vert z)$ being right continuous at $z=0$ and
+\begin{align}\label{eq: null_hyp}
+H^{-}(w\vert0)=H^{+}(w\vert0)\:\:\text{ for all }\:w\in\mathcal{W}
+\end{align}
+Therefore, testing the null hypothesis of continuity of the baseline covariates at the cutoff $Z=0$ reduces to testing for condition~(\ref{eq: null_hyp}). 
+
+\begin{remark}
+In the empirical literature, a hypothesis of the form~(\ref{eq: null_hyp}) is commonly replaced by a weaker hypothesis
+\[\E(W\vert Z=z)\:\:\:\text{ is continuous in }\:\:\:z\:\:\text{ at }\:\:z=0\] 
+This poses some limitations, most notably that there might be distributions which conditional means are continuous, yet the some other features of the conditional distribution of $W$ might be discontinuous. See \cite{canay2016approximate}, appendix \textcolor{magenta}{E} for a thorough revision of this practice in the literature.
+\end{remark}
+
+
+
+
+% ----------------------------------------------------------------- %
+% ----------------------------------------------------------------- %
+
+\section{Induced Order Statistics}
+\label{sec: order_statistics}
+
+
+Consider a random sample $X^{(n)}=\{(Y^{*}_i,W_i,Z_i)\}_{i=1}^n$ from a distribution $P$ of $(Y^*,W,Z)$. The order statistics of the sample of the running variable, $Z_{(1)}\le Z_{(2)}\le\dots\le Z_{(n)}$ will \textit{induce an order} in sample of the baseline covariate, say, $W_{[1]}, W_{[2]},\dots,W_{[n]}$ according to the rule: if $Z_{(j)}=Z_k$ then $W_{[j]}=W_k$ for all $k=1,\dots,n$. It is worth mentioning that the values of this induced order statistics are not necessarily ordered.
+
+
+
+\subsection{The test statistic}\label{sec: cramer_von_Mises}
+
+The test statistic exploits the behavior of the closest units to the left and right of the cutoff$\bar{z}=0$. More precisely, fix $q\in\mathbb{N}$\footnote{The number $q$ has to be small, relative to $n$. More on this in the upcoming sections.} and take the $q$ closest values of the order statistics of
+$\{Z_i\}$ to the right, and the $q$ closest values to the left:
+\[
+Z^{-}_{(q)}\le Z^{-}_{(q-1)}\le\dots\le Z^{-}_{(1)}
+\]
+
+\[
+\:\:\:\text{ and }\:\:\:
+\]
+
+\[
+Z^{+}_{(1)}\le Z^{+}_{(2)}
+\le\dots\le Z^{+}_{(q)}
+\]
+respectively. The induced order for the baseline covariates is then
+
+\[
+W^{-}_{[q]}, W^{-}_{[q-1]},\dots, W^{-}_{[1]}
+\]
+
+\[
+\:\:\:\text{ and }\:\:\:
+\]
+
+\[
+W^{+}_{[1]}, W^{+}_{[2]},\dots,W^{+}_{[q]}
+\]
+
+respectively. The random variabes
+\[
+\{W^{-}_{[q]}, W^{-}_{[q-1]},\dots, W^{-}_{[1]}\}
+\]
+can be viewed as an independent sample of $W$ conditional on $Z$ being close to the cutoff from the left. Analogously,
+\[
+\{W^{+}_{[1]}, W^{+}_{[2]},\dots, W^{+}_{[q]}\}
+\]
+can be thought of an independent sample of $W$ conditional on $Z$ being close to the cutoff from the right. Let $H^-_n(w)$ and $H^+_n(w)$ be the empirical CDFs of the two samples of size $q$, respectively,
+
+\[
+H^-_n(w)=\frac{1}{q}\sum_{i=1}^q I\{W^{-}_{[i]}\le w\}
+\]
+
+\[
+\:\:\:\text{ and }\:\:\:
+\]
+
+\[
+H^+_n(w)=\frac{1}{q}\sum_{i=1}^q I\{W^{+}_{[i]}\le w\}
+\]
+
+Stack all the $2q$ observations of the baseline covariates into
+
+\[
+S_n=(S_{n,1},\dots,S_{n,2q})=(W^{-}_{[1]},
+\]
+
+\[
+\dots, W^{-}_{[q]},W^{+}_{[1]},\dots, W^{+}_{[q]})
+\]
+
+The test statistic is a Cram\'er-von Mises type test:
+\begin{align}\label{eq: test_statistic}
+T(S_n)=\frac{1}{2q}\sum_{i=1}^{2q}\left(H^-_n(S_{n,i})-H^+_n(S_{n,i})\right)^2
+\end{align}
+
+
+% ----------------------------------------------------------------- %
+% ----------------------------------------------------------------- %
+
+\section{Permutation Test}
+\label{sec: perm_test}
+
+The general theory of permutation tests is presented, following section 15 in \cite{lehmann2006testing}. Specifically, how they control type I error if the randomization hypothesis holds.
+
+% ---------------------------------- %
+% Subsection: Hueristic Introduction %
+% ---------------------------------- %
+
+
+\subsection{Hueristic Introduction to Permutation Tests}\label{sec: construction}
+
+
+The rationale and construction of the permutation tests dates back to \cite{fisher1934statistical}. In a nutshell, these tests arise from recomputing the test statistic over permutations of the data. Consider the Cram\'er-von Mises test statistic~(\ref{eq: test_statistic}). Given $S_n$, the observed value of the test statistic is given by $T(S_n)$. Define $\bb{G}_{2q}$ as the group of permutations of $\{1,\dots,2q\}$ onto itself. Compute $T(\cdot)$ for all permutations $\pi$, i.e. $T(S_{n,\pi(1)},\dots,S_{n,\pi(2q)})$ for all $\pi\in\bb{G}_{2q}$, and order these values
+\[
+T^{(1)}(S_n)\le T^{(2)}(S_n)\le\dots\le T^{(N)}(S_n)
+\]
+where $N=(2q)!$ is the cardinality of $\bb{G}_{2q}$. Fix a nominal level $\alpha\in(0,1)$, and define $k=N-\lfloor N\alpha\rfloor$ where $\lfloor\nu\rfloor$ is the largest integer less than or equal to $\nu$. Let $M^{+}(S_n)$ and $M^{0}(S_n)$ be the number of values $T^{(j)}(S_n)$, $j=1,\dots,N$, which are greater than $T^{(k)}(S_n)$ and equal to $T^{(k)}(S_n)$ respectively. Set
+\[
+a(S_n)=\frac{\alpha N-M^{+}(S_n)}{M^{0}(S_n)}
+\]
+Define the randomization test function $\varphi(S_n)$ as
+\[ \varphi(S_n)=
+\begin{cases} 
+      1      & T(S_n)> T^{(k)}(S_n) \\
+      a(S_n) & T(S_n)= T^{(k)}(S_n) \\
+      0      & T(S_n)< T^{(k)}(S_n) \\
+   \end{cases}
+\]
+Moreover, define the randomization distribution based on $T(S_n)$ as
+\begin{align}\label{eq: rand_dist}
+\hat{R}_N(t)=\frac{1}{N}\sum_{\pi\in\bb{G}_{2q}}
+I\{T(S_{n,\pi(1)},\dots,S_{n,\pi(2q)})\le t\}
+\end{align}
+Hence, the permutation test rejects the null hypothesis~(\ref{eq: null_hyp}) if $T(S_n)$ is bigger than the $1-\alpha$ quantile of the randimization 
+distribution~(\ref{eq: rand_dist}).
+
+
+% -------------------------------------------- %
+% Subsection: Why does this construction work? %
+% -------------------------------------------- %
+
+
+
+\subsection{Why does this construction work?}
+
+Permutation tests have favorable finite sample properties, i.e. their construction yields an exact level 
+$\alpha$ test for a fixed sample size, provided the fundamental \textit{randomization hypothesis} holds\footnote{See \cite{lehmann2006testing}, definition 15.2.1.}. In order to understand the scope of this hypothesis, let $\mathbf{P}_0$ be the family of distributions $P\in\mathbf{P}$ satisfying the null hypothesis~(\ref{eq: null_hyp}):
+\[
+\mathbf{P}_0=\{P\in\mathbf{P}: H^{-}(w\vert0)=H^{+}(w\vert0)\:\:\text{ for all }\:w\in\mathcal{W}\}
+\]
+then, the randomization hypothesis says that $\mathbf{P}_0$ remains invariant under $\pi\in\bb{G}_{2q}$. For the sake of exposition, suppose that $(S_1,\dots,S_{2q})$ were i.i.d. with CDF $H(w\vert0)$. Then the randomization hypothesis tell us that $(S_{\pi(1)},\dots,S_{\pi(2q)})\overset{d}{=}(S_1,\dots,S_{2q})$ for all permutations 
+$\pi\in\bb{G}_{2q}$.
+\par
+Hence, if the randomization hypothesis holds, the permutation test described in section~\ref{sec: construction} based on the Cram\'er-von Mises test 
+statistic~(\ref{eq: test_statistic}) is such that\footnote{See theorem 15.2.1 in \cite{lehmann2006testing}.}
+\[
+\mathbb{E}_P(\varphi(S_n))=\alpha\:\:\:\text{ for all }\:\:\:P\in\mathbf{P}_0
+\]
+This hypothesis, however, is hard to sustain in the present context. The null hypothesis~(\ref{eq: null_hyp}) does not guarantee that $(S_{\pi(1)},\dots,S_{\pi(2q)})\overset{d}{=}(S_1,\dots,S_{2q})$ for all permutations $\pi\in\bb{G}_{2q}$, because $S_n$ is not i.i.d. from $H(w\vert0)$. See Remark 4.1 in \cite{canay2016approximate}. That is, the group invariance property fails, which leads us to the approximate invariance described in section~\ref{sec: aprx_inv}.
+
+
+
+% ----------------------------------------------------------------- %
+% ----------------------------------------------------------------- %
+
+
+
+
+\subsection{Asymptotic Validity in the (sharp) RD case} \label{sec: aprx_inv}
+
+In the absence of the group invariance assumption, \cite{canay2016approximate} developed a framework to explore the validity of permutation tests for testing the hypothesis~~(\ref{eq: null_hyp}) under an \textit{approximate} invariance assumption\footnote{This approach has was first proposed by 
+\cite{canay2017randomization}, where the finite group of transformations $\bb{G}$ consisted of sign changes. This asymptotic framework deviates from the one developed by \cite{hoeffding1952large}, and later extended by \cite{romano1990behavior}, and \cite{chung2013exact}. See \cite{canay2016approximate} Remark 4.4.}. Rather than assuming 
+$(S_{\pi(1)},\dots,S_{\pi(2q)})\overset{d}{=}(S_1,\dots,S_{2q})$ for all permutations $\pi\in\bb{G}_{2q}$, we know only require $S=(S_1,\dots,S_{2q})$ to be invariant to 
+$\pi\in\bb{G}_{2q}$, whereas $S_n$ might not be. As a result, the permutation test will control the type I error asymptotically.
+\par
+The following conditions suffice to establish asymptotic validity of the permutation test based on the structure of the rank test statistics\footnote{See Assumption 4.4 in 
+\cite{canay2016approximate}.}: 
+\begin{assumption}\label{eq: assumption} If $P\in\mathbf{P}_0$, then
+\begin{enumerate}[(i)]
+\item $S_n=S_n(X^{(n)})\dlim S$ under $P$.
+\item $(S_{\pi(1)},\dots,S_{\pi(2q)})\overset{d}{=}(S_1,\dots,S_{2q})$ for all $\pi\in\bb{G}_{2q}$.
+\item $S$ is a continuous random variable taking values in $\mathcal{S}\subset\mathbb{R}^{2q}$.
+\item $T:\mathcal{S}\to\mathbf{R}$ is invariant to rank
+\end{enumerate}
+\end{assumption}
+Two comments are worth mentioning. First, Assumption~\ref{eq: assumption} is strengthened in 
+\cite{canay2016approximate} Assumption 4.1 in a way that is easier to interpret. This condition imposes certain restrictions in the context of the model as well. Specifically, it requires the baseline covariate 
+$W$ to be a scalar random variable that is continuously distributed conditional on $Z=0$\footnote{The discrete case is also addressed. See assumption 4.2, \textit{ibid}.}. However, the multidimensional case is also taken into account. More of this in section~\ref{sec: empirical}.
+Second, Assumption~\ref{eq: assumption} requires $S$ to be continuously distributed, an assumption that is relaxed in \cite{canay2016approximate} assumption 4.5. 
+\par
+In spite the assumption stated here emphasizes the continuous case, the asymptotic validity of the permutation test follows regardless of whether the running variable, or the baseline covariate is continuous or discrete, scalar or vector. In other words, the permutation test based on the Cram\'er-von Mises test statistic~(\ref{eq: test_statistic}) is asymptotically valid:
+\[
+\mathbb{E}_P(\varphi(S_n))\to\alpha\:\text{, as }\:n\to\infty\:\text{ as long as }\:P\in\mathbf{P}_0
+\]
+where $\varphi(\cdot)$ is constructed as in section~\ref{sec: construction}. See \cite{canay2016approximate} theorem 4.2. 
+
+
+
+% ----------------------------------------------------------------- %
+% ----------------------------------------------------------------- %
+
+\section{Implementation} \label{sec: implementation}
+
+
+% ------------------------------------- %
+% Subsection: Calculation of p-values   %
+% ------------------------------------- %
+
+
+\subsection{Computing the \textit{p}-values}\label{sec: p_values}
+
+We argued that the permutation test rejects the null hypothesis~(\ref{eq: null_hyp}) if $T(S_n)$ is bigger than the $1-\alpha$ quantile of the randimization distribution~(\ref{eq: rand_dist}). Alternatively, we can define the $p$-value of a permutation test, $\hat{p}$, as
+\begin{align}\label{eq: pvalue}
+\hat{p}=\frac{1}{N}\sum_{\pi\in\bb{G}_{2q}}I\{T(S_{n,\pi(1)},\dots,S_{n,\pi(2q)})\ge T(S_{n})\}
+\end{align}
+where $T(S_n)=T(S_{n,1},\dots,S_{n,2q})$ is the observed sample, and $N$ is the cardinality of $\bb{G}_N$. It can be shown\footnote{This section applied to randomization tests in general, not only to permutation tests. See
+\cite{lehmann2006testing}, section 15.2, page 636.}
+\[
+P(\hat{p}\le u)\le u\:\:\:\text{ for all }
+\]
+\[
+\:\:\:0\le u \le1,\:\:
+\]
+\[
+P\in\mathbf{P}_0
+\]
+therefore, the test that rejects when $\hat{p}\le \alpha$ is level $\alpha$.
+
+
+
+% -------------------------------------- %
+% Subsection: Stochastic Approximation   %
+% -------------------------------------- %
+
+
+
+\subsection{Stochastic approximation}
+
+When computing the permutation distribution in (\ref{eq: rand_dist}), we often encounter the situation that the cardinality of $\bb{G}_{2q}$ might be large such that it becomes computationally prohibitive. In this situation, it is possible to approximate the $p$-values the following way. Randomly sample permutations $\pi$ from $\bb{G}_{2q}$ with or without replacement. Suppose the sampling is with replacement, then $\pi_1,\dots,\pi_N$ are i.i.d. and uniformly distributed on $\bb{G}_{2q}$. Then
+\begin{align}\label{eq: pvalue_approx}
+\tilde{p}=\frac{1}{B}\left(1+\sum_{i=1}^{B-1}I\{T(S_{n,\pi_i(1)},\dots,S_{n,\pi_i(2q)})\ge T(S_{n})\}\right)
+\end{align}
+is such that
+\begin{align}\label{eq: pval_tilde}
+P(\tilde{p}\le u)\le u\:\:\:\text{ for all }\:\:\:0\le u \le1,\:\: P\in\mathbf{P}_0
+\end{align}
+where this $P$ takes into account the randomness of $T(\cdot)$ and the sampling of the $\pi_i$. Like in the case developed in Section~\ref{sec: p_values}, the test that rejects when $\tilde{p}\le \alpha$ is level 
+$\alpha$. 
+\par
+It is worth noticing that the approximation $\tilde{p}$ satisfies (\ref{eq: pval_tilde}) regardless of $B$, although a bigger $B$ will improve the approximation. As a matter of fact, $\tilde{p}-\hat{p}=o_p(1)$ as $B\to\infty$. The \texttt{RATest} package uses $B=499$ by default.
+
+
+% ------------------------------ %
+% Subsection: Tuning Parameter   %
+% ------------------------------ %
+
+
+
+\subsection{Tuning parameter \textit{q}}\label{sec: qrot}
+
+The implementation of the test statistic heavily relies on $q$, the number of closest values of the running variable to the left and right of the cutoff. This quantity is small relative to the sample size $n$, and remains fixed as $n\to\infty$. \cite{canay2016approximate} recomend the rule of thumb
+\begin{align}\label{eq: tuning_par}
+q=\left\lceil f(0)\sigma_Z\sqrt{10*(1-\rho^2)}\frac{n^{3/4}}{\log n} \right\rceil
+\end{align}
+where $\lceil\nu\rceil$ is the smallest integer greater or equal to $\nu$, $f(0)$ is the density if $Z$ at zero, $\rho$ is the coefficient of correlation $W$ and $Z$, and $\sigma^2_Z$ is the variance of $Z$. Additionally, the authors have considered the following alternative rule of thumb
+\begin{align}\label{eq: alt_tuning_par}
+q^a=\left\lceil f(0)\sigma_Z\sqrt{1-\rho^2}\frac{n^{0.9}}{\log n} \right\rceil
+\end{align}
+finding similar results. The main difference in these rules is that the latter grows more rapidly. These quantities are only rules of thumb and have to be seen under this light. Whether or not it's an optimal rule is something for further research. See \cite{canay2016approximate} section 3.1 for additional motivation.
+
+
+\subsubsection{Scalar Case}\label{sec: scalar_q}
+
+Equations~(\ref{eq: tuning_par})-(\ref{eq: alt_tuning_par}) can be estimated from sample. Consider Equation~(\ref{eq: tuning_par}) first. The feasible tuning parameter is 
+\begin{align}\label{eq: qrot_hat}
+\hat{q}=\left\lceil 
+\max\left\{\min\left\{\hat{f}_n(0)\hat{\sigma}_{n,z}\sqrt{10*(1-\hat{\rho}^2_n)}\frac{n^{3/4}}{\log n},
+q_{UB}\right\},q_{LB}\right\}
+\right\rceil
+\end{align}
+where $q_{LB}=10$, and $q_{UB}=n^{0.9}/\log n$. The lower bound, $q_{LB}$ represents situations in which the randomized and non-randomized versions of the permutation test differ, whereas the upper bound, $q_{UB}$ guarantees the rate of convergence does not violate the formal results in \cite{canay2016approximate}, theorem 4.1. The same reasoning applies if we replace $q$ with $q^a$.
+\par
+The density function $\hat{f}_n(\cdot)$ was estimated employing the univariate adaptative kernel density estimation \textit{\`{a} la Silverman} \citep[e.g.][]{portnoy1989adaptive,koenker2002inference,silverman1986density}, and the results were obtained directly from the \textbf{R} package \textbf{quantreg} (\cite{koenker2016quantreg}). Finally, $\rho$ and $\sigma_Z$ were estimated by their sample counterparts.
+
+
+
+\subsubsection{Vector Case}\label{sec: vector_q}
+
+The rules of thumb in (\ref{eq: tuning_par})-(\ref{eq: alt_tuning_par}) are not quite suitable when $W$ is a $K$-dimensional vector, since the variances and correlations are not scalars. Motivated by \cite{canay2016approximate}, we will consider two cases. First, we are interested in testing (\ref{eq: null_hyp}) individually, i.e. testing for continuity of the baseline covariates one by one. In this case, the following algorithm applies. We estimate $\hat{q}$ (or $\hat{q}^a$) for each of the $K$ baseline covariates as in section~\ref{sec: scalar_q}. When testing (\ref{eq: null_hyp}) for the $j$-th covariate, we will use $\hat{q}_j$ to determine the $\hat{q}_j$ closest values of the order statistics of $\{Z_i\}$ to the right and to the left of the cutoff:
+\[
+Z^{-}_{(\hat{q}_j)}\le \dots\le Z^{-}_{(1)}\:\:\text{ and }\:\:Z^{+}_{(1)}\le\dots\le Z^{+}_{(\hat{q}_j)}
+\]
+Then, the induced order statistics for the $j$-th baseline covariate is
+\[
+W^{-}_{j,[\hat{q}_j]},\dots,W^{-}_{j,[1]}\:\:\:\text{ and }\:\:\:
+W^{+}_{j,[1]},\dots, W^{+}_{j,[\hat{q}_j]}
+\]
+Second, we may want to test whether or not the \textit{joint} distribution of the baseline covariates is continuos at the cutoff. In this case, we will estimate the tuning parameter $q$ for each of the $K$ baseline covariates as we just described, but we choose $\hat{q}=\min\{\hat{q}_1,\dots,\hat{q}_K\}$ and calculate the order statistics
+\[
+Z^{-}_{(\hat{q})}\le \dots\le Z^{-}_{(1)}\:\:\text{ and }\:\:Z^{+}_{(1)}\le\dots\le Z^{+}_{(\hat{q})}
+\]
+whereas the induced order statistics of the baseline covariate $W$ is
+\[
+W^{-}_{[\hat{q}]},\dots,W^{-}_{[1]}\:\:\:\text{ and }\:\:\:W^{+}_{[1]},\dots, W^{+}_{[\hat{q}]}
+\]
+
+
+
+% ---------------------------------- %
+% Subsection: Multidimensional Case  %
+% ---------------------------------- %
+
+
+
+\subsection{Multidimensional Case}\label{sec: multivariate}
+
+\subsubsection{The max statistic}
+
+Testing the null hypothesis~(\ref{eq: null_hyp}) is equivalent to testing
+\begin{align}\label{eq: null_hyp_1}
+\Prob(c'W\le w\vert Z=z)\:\text{ is continuous in }\:z\:\text{ at }\:0\:\text{ for all }\:
+w\in\mathbb{R}\:\text{ and all }\:c\in\mathbf{C}
+\end{align}
+where $\mathbf{C}\equiv\{a\in\mathbb{R}^k:||a||=1\}$. Let $\hat{\mathbf{C}}\subset\mathbf{C}$, then the max test statistic is
+\begin{align}\label{eq: max_stat}
+M(S_n)=\max_{c\in\hat{\mathbf{C}}}T(c'S_n)
+\end{align}
+where the test statistic $T(\cdot)$ is the Cram\'er-von Mises test defined in~(\ref{eq: test_statistic}). Following the empirical application in \cite{canay2016approximate}, 
+$\hat{\mathbf{C}}$ consists of a random sample of $100-K$ elements from $\mathbf{C}$, plus the $K$ canonical vectors. 
+
+
+% ----------------------------------------------------------------- %
+% ----------------------------------------------------------------- %
+
+\section{Empirical Illustration} \label{sec: empirical}
+
+The empirical illustration is based on Lee's \citeyearpar{lee2008randomized} of the effect of party incumbency advantage in electoral outcomes. For comparative purposes we follow the same empirical study chosen by \cite{canay2016approximate}.
+
+The objective of Lee's \citeyearpar{lee2008randomized} is to assess whether a Democratic candidate of the US. House of Representative has an edge over his competitors if his party won the previous election. The causal effect of party incumbency is captured by exploiting the fact that an election winner is determined by $D =1(Z\geq0)$ where $Z$, the running variable, is the vote shares between Democrats and Republicans.
+
+Figure \ref{fig:panel.a} shows \cite{lee2008randomized} sharp RD stgrategy. The figure illustrates the sharp change in probability of a Democrat winning against the difference in vote share in the preivous election. The data used here and contained in the package have six covariates and 6558 observations with information on the Democrat runner and the opposition. The data set is named \texttt{lee2008}, and it is a subset of the publicly available data set in the Mostly Harmless Econometrics Data Archive (\url{http://economics.mit.edu/faculty/angrist/data1/mhe})
+
+<<panel.asetup, include=FALSE>>=
+panel.a.cap = "Candidate's probability of winning election $t+1$, by margin of victory in election $t$: local averages and logit polynomial fit"
+@
+
+<<panel.a, fig.height = 4, fig.width = 10, fig.cap = panel.a.cap, echo=FALSE, warning=FALSE>>=
+lee2008$d<- ifelse(lee2008$difdemshare >= 0,1,0)
+
+# Predict with local polynomial logit of degree 4
+logit.a   <- glm(formula = demsharenext ~ poly(difdemshare, degree = 4) +
+                 poly(difdemshare, degree = 4) * d,
+               family  = binomial(link = "logit"),
+               data    = lee2008)
+lee2008$demsharenexthat<-predict(logit.a, lee2008, type = "response")
+
+# Create local average by 0.005 interval of the running variable (share)
+breaks  <- round(seq(-1, 1, by = 0.005), 3)
+lee2008$i005<-as.numeric(as.character(cut(lee2008$difdemshare,
+                                          breaks = breaks,
+                                          labels = head(breaks, -1),
+                                          right  = TRUE)))
+
+
+m_next<-tapply(lee2008$demsharenext,lee2008$i005,mean)
+m_next<-data.frame(i005=rownames(m_next), m_next=m_next)
+mp_next<-tapply(lee2008$demsharenexthat,lee2008$i005,mean)
+mp_next<-data.frame(i005=rownames(mp_next), mp_next=mp_next)
+panel.a<-merge(m_next,mp_next,by=c("i005"), all=T)
+panel.a$i005<-as.numeric(as.character(panel.a$i005))
+
+
+# Plot panel (a)
+panel.a <- panel.a[which(panel.a$i005 > -0.251 & panel.a$i005 < 0.251), ]
+plot.a  <- ggplot(data = panel.a, aes(x = i005))                       +
+  geom_point(aes(y = m_next))                                 +
+  geom_line(aes(y = mp_next, group = i005 >= 0))              +
+  geom_vline(xintercept = 0, linetype = 'longdash')           +
+  xlab('Democratic Vote Share Margin of Victory, Election t') +
+  ylab('Democrat Vote Share, Election t+1')                +
+  theme_bw()
+plot.a
+@
+
+
+One check used by practioners to assess the credibility of the RD designs relies on graphical depiction of the conditional mean of the baseline covariates \footnote{For a list in papers using this strategy see \cite{canay2016approximate} Section E: Surveyd papers on RDD}. Figure \ref{fig:panel.b} plots this for the Democrat vote share in $t-1$. A simple visual inspection would lead the researcher to conclude that there are no discontinuities at the cutoff for these baseline covariates.
+
+<<panel.bsetup, include=FALSE>>=
+panel.b.cap = "Candidate's probability of winning election $t-1$, by margin of victory in election $t$: local averages and logit polynomial fit"
+@
+
+
+<<panel.b, fig.height = 4, fig.width = 10, fig.cap = panel.a.cap, echo=FALSE, warning=FALSE>>=
+
+# Predict with local polynomial logit of degree 4
+logit.b   <- glm(formula = demshareprev ~ poly(difdemshare, degree = 4) +
+                 poly(difdemshare, degree = 4) * d,
+               family  = binomial(link = "logit"),
+               data    = lee2008)
+lee2008$demshareprevhat<-predict(logit.b, lee2008, type = "response")
+
+# Create local average by 0.005 interval of the running variable (share)
+breaks  <- round(seq(-1, 1, by = 0.005), 3)
+lee2008$i005<-as.numeric(as.character(cut(lee2008$difdemshare,
+                                          breaks = breaks,
+                                          labels = head(breaks, -1),
+                                          right  = TRUE)))
+
+
+m_next<-tapply(lee2008$demshareprev,lee2008$i005,mean)
+m_next<-data.frame(i005=rownames(m_next), m_next=m_next)
+mp_next<-tapply(lee2008$demshareprevhat,lee2008$i005,mean)
+mp_next<-data.frame(i005=rownames(mp_next), mp_next=mp_next)
+panel.b<-merge(m_next,mp_next,by=c("i005"), all=T)
+panel.b$i005<-as.numeric(as.character(panel.b$i005))
+
+
+# Plot panel (b)
+panel.b <- panel.b[which(panel.b$i005 > -0.251 & panel.b$i005 < 0.251), ]
+plot.b  <- ggplot(data = panel.b, aes(x = i005))                       +
+  geom_point(aes(y = m_next))                                 +
+  geom_line(aes(y = mp_next, group = i005 >= 0))              +
+  geom_vline(xintercept = 0, linetype = 'longdash')           +
+  xlab('Democratic Vote Share Margin of Victory, Election t') +
+  ylab('Democrat Vote Share, Election t-1')                +
+  theme_bw()
+plot.b
+@
+
+
+
+This package however, implements \cite{canay2016approximate} in the function \texttt{RDperm}. The following \texttt{R} code performs the test for the continuity of the \textit{Democrat Vote Share, Election t-1} named \texttt{demshareprev} in the data set at the threshold. The function requires the name of the baseline covariate to be tested, the running variable \texttt{z}, the data set name. We also specify a natural number that will define the q closest values of the order statistics of the running variable (\texttt{z}) to the right and to the left of the cutoff. As default, the function uses the Cram\'er-von Mises test \texttt{`CvM'}. The function \texttt{summary} is available for a concise summary of the result.
+
+<<userdefined_single variable>>=
+# Lee2008
+set.seed(101)
+permtest<-RDperm(W="demshareprev", z="difdemshare",data=lee2008,q_type=51)
+summary(permtest)
+@
+
+The \texttt{summary} function reports the vaule of the test statistics ($T(Sn)$), the \textit{p}-value and the number of q closest values used. This is particularly relevant when the user chooses any of the `rule of thumb' methods for \texttt{q}. The function allows for multiple baseline covariates as well, in which case it will return the join test. The following \texttt{R} code shows how to do this, using the rule of thumb in 
+Eq~(\ref{eq: tuning_par}):
+
+<<rot>>=
+permtest_rot<-RDperm(W=c("demshareprev","demwinprev", "demofficeexp"),
+                      z="difdemshare",data=lee2008,q_type='rot', n.perm=600)
+summary(permtest_rot)
+@
+
+
+A plot function is also available for objects of the class \texttt{RDperm}. It works as the base \texttt{plot} function, but it needs the specification of the desired baseline covariate to be plotted. The output can be a \texttt{ggplot} histogram (\texttt{hist}), CDF \texttt{cdf} or both. The default is \texttt{both}.
+
+
+<<hist.cdf.setup, include=FALSE>>=
+hist.cdf.cap = "Histogram and CDF for Democrat vote share t-1"
+@
+
+
+<<hist.cdf, fig.height = 4, fig.width = 10, fig.cap = hist.cdf.cap , echo=TRUE>>=
+plot(permtest,w="demshareprev")
+@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% ----------------------------------------------------------------- %
+% ----------------------------------------------------------------- %
+
+
+
+\section{Conclusions} \label{sec: conclusions}
+
+In this paper we describe the \texttt{RATest} package in \texttt{R}, which  allows the practitioner to test the null hypothesis of continuity of the distribution of the baseline covariates in the RDD, as developed by \cite{canay2016approximate}. Based on a result on induced order statistics, the \texttt{RATest} package implements a permutation test based on the Cram\'er-von Mises test statistic.
+\par
+This paper also revisits the theory of permutation tests and the asymptotic framework to restore the validity of such procedures when an approximate group invariance assumption holds. Under this assumption, the aforementioned permutation test has several advantages, say, the ability to control the type-I error in large samples, as well as its flexibility since we need not to assume a parametric distribution generating the data. 
+\par
+The main functionalities of the package have been illustrated by applying them to the celebrated RDD of the U.S. House elections in \cite{lee2008randomized}. 
+
+
+
+
+
+
+% ----------------- %
+%     References    %
+% ----------------- %
+
+\pagebreak
+\bibliographystyle{apalike}
+\bibliography{rddperm_ref}
+
+
+
+
+
+
+\end{document}
+
+
+
+
