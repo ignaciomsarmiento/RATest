@@ -17,6 +17,8 @@ RPT(formula, data, test = "means", n.perm = 499, na.action,
 \item{n.perm}{Numeric. Number of permutations needed for the stochastic approximation of the p-values. See remark 3.2 in Canay and Kamat (2017). The default is n.perm=499.}
 
 \item{na.action}{a function to filter missing data. This is applied to the model.frame . The default is na.omit, which deletes observations that contain one or more missing values.}
+
+\item{wilcoxon.option}{Continuity assumption for Wilcoxon test" with continuity ("continuity") or without ("discontinuity"). The default is "continuity"}
 }
 \value{
 An object of class "RPT" is a list containing at least the following components:
@@ -31,7 +33,32 @@ An object of class "RPT" is a list containing at least the following components:
  \item{sample_sizes}{Groups lengths.}
 }
 \description{
+This function considers the k-sample problem of comparing general parameters, such as means, medians, or parameters that depend on the joint distribution using permutation tests. Under weak assumptions for comparing estimator, the permutation tests implemented here provide a general test procedure whereby the asymptotic validity of the permutation test holds while retaining the exact rejection probability \eqn{\alpha} in finite samples when the underlying distributions are identical.
+Here we will consider three test for the 2 sample case, but the function works for k-samples. 
 
+Difference of means: Here, the null hypothesis is of the form \eqn{H_0: \mu(P)-\mu(Q)=0}, and the corresponding test statistic is given by 
+ \deqn{T_{m,n}=\frac{N^{1/2}(\bar{X}_m-\bar{Y}_n)}{\sqrt{\frac{N}{m}\sigma^2_m(X_1,\dots,X_m)+ \frac{N}{n}\sigma^2_n(Y_1,\dots,Y_n)}}}  
+ where \eqn{\bar{X}_m} and \eqn{\bar{Y}_n} are the sample means from population \eqn{P} and population \eqn{Q}, respectively, and \eqn{\sigma^2_m(X_1,\dots,X_m)} is a consistent estimator of \eqn{\sigma^2(P)$ when $X_1,\dots,X_m} are i.i.d. from \eqn{P}. Assume consitency also under \eqn{Q}.
+
+Difference of medians: Let \eqn{F} and \eqn{G} be the CDFs corresponding to \eqn{P} and \eqn{Q}, and denote \eqn{\theta(F)} the median of \eqn{F} i.e. \eqn{\theta(F)=\inf\{x:F(x)\ge1/2\}}. Assume that \eqn{F} is continuously differentiable at \eqn{\theta(P)} with derivative \eqn{F'} (and the same with \eqn{F} replaced by \eqn{G}). Here, the null hypothesis is of the form  \eqn{H_0: \theta(P)-\theta(Q)=0}, and the corresponding test statistic is given by
+\deqn{T_{m,n}=\frac{N^{1/2}\left(\theta(\hat{P}_m)-\theta(\hat{Q})\right)}{\hat{\upsilon}_{m,n}}}
+where \eqn{\hat{\upsilon}_{m,n}} is a consistent estimator of \eqn{\upsilon(P,Q)}:
+\deqn{\upsilon(P,Q)=\frac{1}{\lambda}\frac{1}{4(F'(\theta))^2}+\frac{1}{1-\lambda}\frac{1}{4(G'(\theta))^2}}
+Choices of \eqn{\hat{\upsilon}_{m,n}} may include the kernel estimator of Devroye and Wagner (1980), the bootstrap estimator of Efron (1992), or the smoothed bootstrap  Hall et al. (1989) to list a few. For further details, see Chung and Romano (2013). Current implementation uses the bootstrap estimator of Efron (1992)
+                                                                                       
+Difference of variances: Here, the null hypothesis is of the form \eqn{H_0: \sigma^2(P)-\sigma^2(Q)=0}, and the corresponding test statistic is given by 
+\deqn{T_{m,n}=\frac{N^{1/2}(\hat{\sigma}_m^2(X_1,\dots,X_,)-\hat{\sigma}_n^2(Y_1,\dots,Y_n))}{\sqrt{\frac{N}{m}(\hat{\mu}_{4,x}-\frac{(m-3)}{(m-1)}(\hat{\sigma}_m^2)^2)+\frac{N}{n}(\hat{\mu}_{4,y}-\frac{(n-3)}{(n-1)}(\hat{\sigma}_y^2)^2)}}} 
+where \eqn{\hat{\mu}_{4,m}} the sample analog of \eqn{E(X-\mu)^4} based on an iid sample \eqn{X_1,\dots,X_m} from \eqn{P}. Similarly for \eqn{\hat{\mu}_{4,n}}.
+
+We could also have the case when the parameter of interest is a function of the joint distribution. The examples considered here are
+
+Lehmann (1951) two-sample U statistics: Consider testing \eqn{H_0: P=Q}, or the more general hypothesis that \eqn{P} and \eqn{Q} only differ in location against the alternative that the \eqn{Y}'s are more spread out than the \eqn{X}'s. The null hypothesis is of the form \deqn{H_0: P(\vert Y-Y'\vert>\vert X-X'\vert)=1/2}.
+
+Two-sample Wilcoxon statistic, where the null hypothesis is of the form \deqn{H_0: P(X\le Y)=1/2}.
+
+Two-sample Wilcoxon statistic without continuity assumption. In this case, the null hypothesis is of the form \deqn{H_0: P(X\le Y)=P(Y\le X)}.
+
+Hollander (1967) two-sample U statistics. The null hypothesis is of the form \deqn{H_0: P(X+X'<Y+Y')=1/2}.
 }
 \examples{
 \dontrun{

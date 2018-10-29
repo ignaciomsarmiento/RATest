@@ -32,9 +32,9 @@
 #' @import quantreg
 #' @importFrom stats cor var runif
 #' @examples
+#'\dontrun{
 #' permtest<-RDperm(W=c("demshareprev"),z="difdemshare",data=lee2008)
 #' summary(permtest)
-#'\dontrun{
 #' permtest<-RDperm(W=c("demshareprev","demwinprev"),z="difdemshare",data=lee2008)
 #' summary(permtest)
 #' }

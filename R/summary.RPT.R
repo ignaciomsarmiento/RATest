@@ -41,7 +41,7 @@ summary.RPT<-function(object, ..., digits=max(3, getOption("digits") - 3)){
   cat("* --------------------------------------------------------*\n")
   cat("Estimates:\n")
   cat("\n")
-  if(test %in% c("means","medians","variances")) {
+  if(object$description %in% c("means","medians","variances")) {
     z<-cbind(object$parameters,object$sample_sizes)
     colnames(z)<-c("Parameter", "Sample Size")
     print(z)

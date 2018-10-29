@@ -41,9 +41,9 @@ containing the following components:
 A permutation test for continuity of covariates in Sharp Regression Discontinuity Design as described in Canay and Kamat (2017).
 }
 \examples{
+\dontrun{
 permtest<-RDperm(W=c("demshareprev"),z="difdemshare",data=lee2008)
 summary(permtest)
-\dontrun{
 permtest<-RDperm(W=c("demshareprev","demwinprev"),z="difdemshare",data=lee2008)
 summary(permtest)
 }
