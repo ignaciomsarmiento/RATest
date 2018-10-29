@@ -4,8 +4,8 @@
 \alias{summary.RDperm}
 \title{Summarizing Regression Discontinuity Design Permutation Test}
 \usage{
-\method{summary}{RDperm}(object, digits = max(3, getOption("digits") - 3),
-  ...)
+\method{summary}{RDperm}(object, digits = max(3, getOption("digits") -
+  3), ...)
 }
 \arguments{
 \item{object}{an object of class \code{"RDperm"}, usually a result of a call to \code{\link{RDperm}}}
