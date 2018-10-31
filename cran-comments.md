@@ -1,3 +1,9 @@
+# Version 0.1.3
+## Test environments
+* R version 3.5.1 (2018-07-02) Platform: x86_64-apple-darwin15.6.0 (64-bit) Running under: macOS  10.14.1
+## R CMD check results
+Status: OK
+
 # Version 0.1.2
 
 

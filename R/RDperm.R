@@ -32,9 +32,9 @@
 #' @import quantreg
 #' @importFrom stats cor var runif
 #' @examples
-#'\dontrun{
 #' permtest<-RDperm(W=c("demshareprev"),z="difdemshare",data=lee2008)
 #' summary(permtest)
+#'\dontrun{
 #' permtest<-RDperm(W=c("demshareprev","demwinprev"),z="difdemshare",data=lee2008)
 #' summary(permtest)
 #' }
@@ -42,12 +42,6 @@
 
 
 RDperm<-function(W,z,data,n.perm=499,q_type=10,cutoff=0,test.statistic="CvM"){
-  
-  if (anyNA(c(W,z))) 
-    stop("NAs in first or second argument")
-  if (!is.numeric(c(W,z))) 
-    stop("Arguments must be numeric")
-  else
   W_z<-base::subset(data, select=c(W,z))
   colnames(W_z)[colnames(W_z)==z]<-"z"
   N<-dim(data)[1]
@@ -249,7 +243,6 @@ aqrot<-function(w,W_z){
 
 
 qrot<-function(w,W_z){
-  
   w<-W_z[,w]
   z<-W_z[,"z"]
   N<-length(w)
