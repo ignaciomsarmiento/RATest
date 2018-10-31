@@ -1,3 +1,14 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 cran-comments.md
+
+
+^\.git$
+.DS_Store
+.Rhistory
+.gitignore
+R/.Rapp.history
+vignettes/.DS_Store
+.Rproj.user
+.git
+docs
