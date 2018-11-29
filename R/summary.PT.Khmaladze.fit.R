@@ -1,0 +1,35 @@
+summary.PT.Khmaladze.fit<-function(object, ..., digits=max(3, getOption("digits") - 3)){
+  
+  cat("\n")
+  cat("***********************************************************\n")
+  cat("**   Goodness-of-fit testing with a nuisance parameter:  **\n")   
+  cat("**         Asymptotically Robust Permutation Test        **\n")
+  cat("***********************************************************\n")
+  cat("\n")
+  cat("* Testing Problem: testing goodness of fit in the presence *\n")
+  cat("* of a nuisance parameter using a permutation test that is *\n")
+  cat("* asymptotically valid under fairly weak assumptions.      *\n")
+  cat("\n")
+  cat(paste("Total Number of Observations (Pooled Sample): ", object$N ,sep=""))
+  cat("\n")
+  z <- as.data.frame(cbind(c("Treatment", "Control"),object$sample_sizes))   
+  colnames(z)<-c("Group","Obs")
+  print(z,row.names=FALSE)
+  cat("\n")
+  cat(paste("Number of Permutations: ",object$n_perm,sep=""))
+  cat("\n\n")
+  cat("* --------------------------------------*\n")
+  cat(paste("*   H0: F1(y+", "\u03B4",") = F0(y), for some ","\u03B4  *\n"))
+  cat("* --------------------------------------*\n\n")
+  cat(paste("Estimated Nuisance Parameter (ATE): ", round(object$shift,3), sep=""))
+  cat("\n")
+  cat(paste("Test Statistic: ", round(object$T.obs,3),sep=""))
+  cat("\n")
+  cat(paste("Critical Value: "),round(object$cv,3), sep="")
+  cat("\n")
+  cat(paste("P-Value: ", round(object$pvalue,3) ,sep=""))
+  cat("\n")
+  
+}
+
+
