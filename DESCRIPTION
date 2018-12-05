@@ -1,8 +1,8 @@
 Package: RATest
 Type: Package
 Title: Randomization Tests
-Description: A collection of randomization tests, data sets and examples. The current version focuses on two testing problems and their implementation in empirical work. First, it facilitates the empirical researcher to test for particular hypotheses, such as comparisons of means, medians, and variances from k populations using robust permutation tests, which asymptotic validity holds under very weak assumptions, while retaining the exact rejection probability in finite samples when the underlying distributions are identical. Second, the description and implementation of a permutation test for testing the continuity assumption of the baseline covariates in the sharp regression discontinuity design (RDD) as in Canay and Kamat (2017) <https://goo.gl/UZFqt7>. More specifically, it allows the user to select a set of covariates and test the aforementioned hypothesis using a permutation test based on the Cramer-von Miss test statistic. Graphical inspection of the empirical CDF and histograms for the variables of interest is also supported in the package.
-Version: 0.1.3
+Description: A collection of randomization tests, data sets and examples. The current version focuses on three testing problems and their implementation in empirical work. First, it facilitates the empirical researcher to test for particular hypotheses, such as comparisons of means, medians, and variances from k populations using robust permutation tests, which asymptotic validity holds under very weak assumptions, while retaining the exact rejection probability in finite samples when the underlying distributions are identical. Second, the description and implementation of a permutation test for testing the continuity assumption of the baseline covariates in the sharp regression discontinuity design (RDD) as in Canay and Kamat (2017) <https://goo.gl/UZFqt7>. More specifically, it allows the user to select a set of covariates and test the aforementioned hypothesis using a permutation test based on the Cramer-von Miss test statistic. Graphical inspection of the empirical CDF and histograms for the variables of interest is also supported in the package. Third, it provides the practitioner with an effortless implementation of a permutation test based on the martingale decomposition of the empirical process for the goodness-of-fit testing problem with an estimated nuisance parameter. An application of this testing problem is the one of testing for heterogeneous treatment effects in a randomized control trial.
+Version: 0.1.4
 BugReports: https://github.com/ignaciomsarmiento/RATest/issues
 Authors@R: c(
     person( "Mauricio", "Olivares-Gonzalez", email=  "maurice.olivares@gmail.com", role =  c("aut", "cre")),
@@ -14,16 +14,18 @@ Imports: stats,  quantreg
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
 Author: Mauricio Olivares-Gonzalez [aut, cre],
         Ignacio Sarmiento-Barbieri [aut]
 Collate:
     'CvM.stat.R'
     'H.cdf.R'
+    'PT.Khmaladze.fit.R'
     'RDperm.R'
     'RPT.R'
     'lee2008.R'
     'plot.RDperm.R'
+    'summary.PT.Khmaladze.fit.R'
     'summary.RDperm.R'
     'summary.RPT.R'
 Suggests: knitr,
